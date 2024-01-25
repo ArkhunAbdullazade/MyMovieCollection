@@ -22,7 +22,7 @@ namespace MyMovieCollection.Controllers
         }
 
         [HttpGet] 
-        [ActionName("Movies")]
+        [Route("/Movies")]
         public async Task<IActionResult> GetAll()
         {
             Console.WriteLine(1);
@@ -32,6 +32,7 @@ namespace MyMovieCollection.Controllers
         }
 
         [HttpGet]
+        [Route("/Movie")]
         public async Task<IActionResult> GetById(int id)
         {
             var movie = await repository.GetByIdAsync(id);
