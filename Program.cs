@@ -1,15 +1,22 @@
+using MyMovieCollection.Models;
+using MyMovieCollection.Repositories;
+using MyMovieCollection.Repositories.Base;
+using Microsoft.Data.SqlClient;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IMovieRepository>(p =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("MyMovieCollectionDb");
+    return new MovieSqlRepository(new SqlConnection(connectionString));
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
+if(app.Environment.IsDevelopment()) {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
