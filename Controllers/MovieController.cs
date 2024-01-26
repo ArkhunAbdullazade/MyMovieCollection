@@ -32,6 +32,7 @@ namespace MyMovieCollection.Controllers
         }
 
         [HttpGet]
+        [ActionName("About")]
         [Route("/Movie")]
         public async Task<IActionResult> GetById(int id)
         {

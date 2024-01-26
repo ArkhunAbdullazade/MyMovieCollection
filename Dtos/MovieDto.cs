@@ -14,5 +14,6 @@ namespace MyMovieCollection.Dtos
         public float? Budget { get; set; }
         public float? ImbdScore { get; set; }
         public int? MetaScore { get; set; }
+        public string? ReleaseDate { get; set; }
     }
 }
