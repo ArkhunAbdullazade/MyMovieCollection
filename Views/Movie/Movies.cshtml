@@ -5,7 +5,9 @@
 }
 
 <style>
-    h1 {
+    h1,
+    h2,
+    h3 {
         text-align: center;
     }
 
@@ -16,7 +18,9 @@
     }
 
     span,
-    h1 {
+    h1,
+    h2,
+    h3 {
         font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     }
 
@@ -33,32 +37,47 @@
         font-size: 15px;
     }
 
+    .list,
+    .list > div {
+        flex-direction: column;
+        border: 2px solid white;
+        border-radius: 15px;
+}
+
     .list {
         display: flex;
-        flex-direction: row;
-        border: 2px solid white;
         padding: 10px;
-        border-radius: 15px;
-        margin: 10px
     }
     .list > div {
-        display: inline-block;
-        margin-right: 15px;
+        flex-direction: row;
+        margin: 10px;
+        display: inline-flex;
+    }
+    .list > div > div{
+        margin: 15px;
     }
 </style>
 
 <h1>@ViewData["Title"]</h1>
+<h2>To create a new Movie <a asp-action="Create" asp-controller="Movie">click here</a>.</h2>
 
-<div class="list">
-    @foreach (var movie in Model)
-    {
-        <div>
-            <a asp-action="About" asp-controller="Movie" asp-route-id="@movie.Id"><img src="@movie.PosterUrl" alt="movie poster" /></a>
-        </div>
-        <div>
-            <span class="title"><b>@movie.Title</b></span>
-            <span class="original-title">@movie.OriginalTitle</span>
-            <p class="description">@movie.Description</p>
-        </div>
-    }
-</div>
+@if (Model.Any<Movie>()) {
+    <div class="list">
+        @foreach (var movie in Model)
+        {
+            <div>
+                <div class="img-div">
+                    <a asp-action="About" asp-controller="Movie" asp-route-id="@movie.Id"><img src="@movie.PosterUrl" alt="movie poster" /></a>
+                </div>
+                <div>
+                    <span class="title"><b>@movie.Title</b></span>
+                    <span class="original-title">@movie.OriginalTitle</span>
+                    <p class="description">@movie.Description</p>
+                </div>
+            </div>
+        }
+    </div>
+}
+else {
+    <h3>There is no movie yet.</h3>
+}
