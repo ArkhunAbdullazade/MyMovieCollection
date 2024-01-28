@@ -53,6 +53,7 @@ namespace MyMovieCollection.Controllers
 
             if (string.IsNullOrEmpty(movie.Description)) return BadRequest("Description must be filled");
 
+            System.Console.WriteLine(movie.ReleaseDate);
             var newMovie = new Movie()
             {
                 Title = movie.Title,
@@ -61,7 +62,8 @@ namespace MyMovieCollection.Controllers
                 Description = movie.Description,
                 Budget = movie.Budget,
                 ImbdScore = movie.ImbdScore,
-                MetaScore = movie.MetaScore
+                MetaScore = movie.MetaScore,
+                ReleaseDate = movie.ReleaseDate,
             };
 
             if (await repository.CreateAsync(newMovie) == 0) return BadRequest();

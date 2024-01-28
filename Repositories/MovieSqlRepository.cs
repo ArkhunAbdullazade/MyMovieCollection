@@ -28,8 +28,8 @@ namespace MyMovieCollection.Repositories
         public async Task<int> CreateAsync(Movie newMovie)
         {
             return await connection.ExecuteAsync(
-            @"insert into Movies (Title, OriginalTitle, PosterUrl, Description, Budget, ImbdScore, MetaScore) 
-            values(@Title, @OriginalTitle, @PosterUrl, @Description, @Budget, @ImbdScore, @MetaScore)", newMovie);
+            @"insert into Movies (Title, OriginalTitle, PosterUrl, Description, Budget, ImbdScore, MetaScore, ReleaseDate) 
+            values(@Title, @OriginalTitle, @PosterUrl, @Description, @Budget, @ImbdScore, @MetaScore, @ReleaseDate)", newMovie);
         }
     }
 }
