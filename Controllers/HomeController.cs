@@ -1,17 +1,31 @@
-using System.Net;
-using MyMovieCollection.Controllers.Base;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using MyMovieCollection.Models;
 
 namespace MyMovieCollection.Controllers;
 
-public class HomeController : ControllerBase
+public class HomeController : Controller
 {
-    public async Task HomePageAsync(HttpListenerContext context)
-    {
-        using var writer = new StreamWriter(context.Response.OutputStream);
+    private readonly ILogger<HomeController> _logger;
 
-        var pageHtml = await File.ReadAllTextAsync("Views/Home.html");
-        await writer.WriteLineAsync(pageHtml);
-        context.Response.StatusCode = (int)HttpStatusCode.OK;
-        context.Response.ContentType = "text/html";
+    public HomeController(ILogger<HomeController> logger)
+    {
+        _logger = logger;
+    }
+
+    public IActionResult Index()
+    {
+        return View();
+    }
+
+    public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

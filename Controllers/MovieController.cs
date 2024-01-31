@@ -1,154 +1,82 @@
-using System.Data.SqlClient;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Net;
-using System.Text.Json;
-using MyMovieCollection.Attributes.Http;
-using MyMovieCollection.Controllers.Base;
-using Dapper;
-using MyMovieCollection.Extensions;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using MyMovieCollection.Dtos;
 using MyMovieCollection.Models;
+using MyMovieCollection.Repositories.Base;
 
-namespace MyMovieCollection.Controllers;
-
-public class MovieController : ControllerBase
+namespace MyMovieCollection.Controllers
 {
-    private const string connectionString = "Server=localhost;Database=MyMovieCollectionDb;User Id=sa;Password=Arkhun42;";
-
-    [HttpGet("GetAll")]
-    public async Task GetMoviesAsync(HttpListenerContext context)
+    public class MovieController : Controller
     {
-        using var writer = new StreamWriter(context.Response.OutputStream);
+        private readonly IMovieRepository repository;
 
-        using var connection = new SqlConnection(connectionString);
-        var movies = await connection.QueryAsync<Movie>("select * from Movies");
-
-        var moviesHtml = movies.GetHtml();
-        await writer.WriteLineAsync(moviesHtml);
-
-        context.Response.ContentType = "text/html";
-        context.Response.StatusCode = (int)HttpStatusCode.OK;
-    }
-
-    [HttpGet("GetById")]
-    public async Task GetMovieByIdAsync(HttpListenerContext context)
-    {
-        var movieIdToGetObj = context.Request.QueryString["id"];
-
-        if (movieIdToGetObj == null || int.TryParse(movieIdToGetObj, out int movieIdToGet) == false)
+        public MovieController(IMovieRepository repository)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return;
+            this.repository = repository;
         }
 
-        using var connection = new SqlConnection(connectionString);
-        var movie = await connection.QueryFirstOrDefaultAsync<Movie>(
-            sql: "select top 1 * from Movies where Id = @Id",
-            param: new { Id = movieIdToGet });
-
-        if (movie is null)
+        [HttpGet] 
+        [ActionName("Movies")]
+        [Route("/Movies")]
+        public async Task<IActionResult> GetAll()
         {
-            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            return;
+            var movies = await repository.GetAllAsync();
+
+            return View(movies);
         }
 
-        using var writer = new StreamWriter(context.Response.OutputStream);
-        await writer.WriteLineAsync(JsonSerializer.Serialize(movie));
-
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)HttpStatusCode.OK;
-    }
-
-    [HttpPost("Create")]
-    public async Task PostMovieAsync(HttpListenerContext context)
-    {
-        Movie? newMovie;
-        using var writer = new StreamWriter(context.Response.OutputStream);
-
-        try
+        [HttpGet]
+        [ActionName("About")]
+        [Route("/Movie")]
+        public async Task<IActionResult> GetById(int id)
         {
-            newMovie = await context.CheckMovie();
-        }
-        catch (ArgumentNullException e)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            await writer.WriteAsync(e.Message);
-            return;
+            var movie = await repository.GetByIdAsync(id);
+
+            if (movie == null) return NotFound($"Movie with id {id} doesn't exist");
+
+            return View(movie);
         }
 
-        if (newMovie is null) return;
+        [HttpGet]
+        public IActionResult Create() => View();
 
-        using var connection = new SqlConnection(connectionString);
-        await connection.ExecuteAsync(
-            @"insert into Movies (Title, Description, ImbdScore, MetaScore) 
-            values(@Title, @Description, @ImbdScore, @MetaScore)",
-            param: newMovie);
-
-        context.Response.StatusCode = (int)HttpStatusCode.Created;
-    }
-
-    [HttpDelete]
-    public async Task DeleteMovieAsync(HttpListenerContext context)
-    {
-        var movieIdToDeleteObj = context.Request.QueryString["id"];
-
-        if (movieIdToDeleteObj == null || int.TryParse(movieIdToDeleteObj, out int movieIdToDelete) == false)
+        [HttpPost]
+        public async Task<IActionResult> Create([FromForm] MovieDto movie)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return;
-        }
+            if (string.IsNullOrEmpty(movie.Title)) return BadRequest("Title must be filled");
 
-        using var connection = new SqlConnection(connectionString);
-        var deletedRowsCount = await connection.ExecuteAsync(
-            @"delete Movies
-            where Id = @Id",
-            param: new
+            if (string.IsNullOrEmpty(movie.Description)) return BadRequest("Description must be filled");
+
+            System.Console.WriteLine(movie.ReleaseDate);
+            var newMovie = new Movie()
             {
-                Id = movieIdToDelete,
-            });
+                Title = movie.Title,
+                OriginalTitle = movie.OriginalTitle,
+                PosterUrl = movie.PosterUrl,
+                Description = movie.Description,
+                Budget = movie.Budget,
+                ImbdScore = movie.ImbdScore,
+                MetaScore = movie.MetaScore,
+                ReleaseDate = movie.ReleaseDate,
+            };
 
-        if (deletedRowsCount == 0)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            return;
+            if (await repository.CreateAsync(newMovie) == 0) return BadRequest();
+
+            HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
+
+            return RedirectToAction(actionName: "Movies");
         }
 
-        context.Response.StatusCode = (int)HttpStatusCode.OK;
-    }
-
-    [HttpPut]
-    public async Task PutMovieAsync(HttpListenerContext context)
-    {
-        var movieIdToUpdateObj = context.Request.QueryString["id"];
-
-        if (movieIdToUpdateObj is null || int.TryParse(movieIdToUpdateObj, out int movieIdToUpdate) == false)
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return;
+            return View("Error");
         }
-
-        var movieToUpdate = await context.CheckMovie();
-
-        if (movieToUpdate is null) return;
-
-        using var connection = new SqlConnection(connectionString);
-        var affectedRowsCount = await connection.ExecuteAsync(
-            @"update Movies
-            set Title = @Title, Description = @Description, ImbdScore = @ImbdScore, MetaScore = @MetaScore
-            where Id = @Id",
-            param: new
-            {
-                Id = movieIdToUpdate,
-                movieToUpdate?.Title,
-                movieToUpdate?.Description,
-                movieToUpdate?.ImbdScore,
-                movieToUpdate?.MetaScore,
-            });
-
-        if (affectedRowsCount == 0)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            return;
-        }
-
-        context.Response.StatusCode = (int)HttpStatusCode.OK;
     }
 }

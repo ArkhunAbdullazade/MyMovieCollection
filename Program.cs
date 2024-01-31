@@ -1,92 +1,34 @@
-﻿using System.Net;
-using System.Reflection;
-using MyMovieCollection.Attributes.Http.Base;
-using MyMovieCollection.Controllers;
-using MyMovieCollection.Controllers.Base;
+using MyMovieCollection.Models;
+using MyMovieCollection.Repositories;
+using MyMovieCollection.Repositories.Base;
+using Microsoft.Data.SqlClient;
 
-HttpListener httpListener = new HttpListener();
+var builder = WebApplication.CreateBuilder(args);
 
-const int port = 8080;
-httpListener.Prefixes.Add($"http://*:{port}/");
+builder.Services.AddControllersWithViews();
 
-httpListener.Start();
-
-while (true)
+builder.Services.AddScoped<IMovieRepository>(p =>
 {
-    var context = await httpListener.GetContextAsync();
+    var connectionString = builder.Configuration.GetConnectionString("MyMovieCollectionDb");
+    return new MovieSqlRepository(new SqlConnection(connectionString));
+});
 
-    var endpointItems = context.Request.Url?.AbsolutePath?.Split("/", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+var app = builder.Build();
 
-    if (endpointItems == null || endpointItems.Any() == false)
-    {
-        await new HomeController().HomePageAsync(context);
-        context.Response.Close();
-        continue;
-    }
-
-    var controllerType = Assembly.GetExecutingAssembly()
-        .GetTypes()
-        .Where(t => t.BaseType == typeof(ControllerBase))
-        .FirstOrDefault(t => t.Name.ToLower() == $"{endpointItems[0]}controller");
-
-    if (controllerType == null)
-    {
-        context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-        context.Response.Close();
-        continue;
-    }
-
-    string normalizedRequestHttpMethod = context.Request.HttpMethod.ToLower();
-
-    var controllerMethod = controllerType
-        .GetMethods()
-        .FirstOrDefault(m =>
-        {
-            return m.GetCustomAttributes()
-                .Any(attr =>
-                {
-                    if (attr is HttpAttribute httpAttribute)
-                    {
-                        bool isHttpMethodCorrect = httpAttribute.MethodType.Method.ToLower() == normalizedRequestHttpMethod;
-
-                        if (isHttpMethodCorrect)
-                        {
-                            if (endpointItems.Length == 1 && httpAttribute.NormalizedRouting == null)
-                                return true;
-
-                            else if (endpointItems.Length > 1)
-                            {
-                                if (httpAttribute.NormalizedRouting == null)
-                                    return false;
-                                else
-                                {
-                                    var expectedEndpoint = string.Join('/', endpointItems[1..]).ToLower();
-                                    var actualEndpoint = httpAttribute.NormalizedRouting;
-
-                                    return actualEndpoint == expectedEndpoint;
-                                }
-                            }
-                        }
-                    }
-
-                    return false;
-                });
-        });
-
-    if (controllerMethod == null)
-    {
-        context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-        context.Response.Close();
-        continue;
-    }
-
-    var controller = Activator.CreateInstance(controllerType) as ControllerBase;
-    var methodCall = controllerMethod.Invoke(controller, parameters: new[] { context });
-
-    if (methodCall != null && methodCall is Task asyncMethod)
-    {
-        await asyncMethod.WaitAsync(CancellationToken.None);
-    }
-
-    context.Response.Close();
+if(app.Environment.IsDevelopment()) {
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();
