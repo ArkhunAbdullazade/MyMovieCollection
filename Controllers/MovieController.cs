@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MyMovieCollection.Dtos;
@@ -53,7 +54,6 @@ namespace MyMovieCollection.Controllers
 
             if (string.IsNullOrEmpty(movie.Description)) return BadRequest("Description must be filled");
 
-            System.Console.WriteLine(movie.ReleaseDate);
             var newMovie = new Movie()
             {
                 Title = movie.Title,
@@ -66,7 +66,9 @@ namespace MyMovieCollection.Controllers
                 ReleaseDate = movie.ReleaseDate,
             };
 
-            if (await repository.CreateAsync(newMovie) == 0) return BadRequest();
+            bool isSuccessful = await repository.CreateAsync(newMovie) > 0;
+
+            if (!isSuccessful) return base.StatusCode((int)HttpStatusCode.InternalServerError);
 
             HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
 

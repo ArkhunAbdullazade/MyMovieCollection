@@ -9,9 +9,10 @@ namespace MyMovieCollection.Repositories
     {
         private readonly SqlConnection connection;
 
-        public MovieSqlRepository(SqlConnection connection)
+        public MovieSqlRepository(IConfiguration configuration)
         {
-            this.connection = connection;
+            var connectionString = configuration.GetConnectionString("MyMovieCollectionDb");
+            this.connection = new SqlConnection(connectionString);
         }
 
         public async Task<IEnumerable<Movie>> GetAllAsync()
