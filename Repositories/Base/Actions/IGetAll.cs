@@ -1,6 +1,6 @@
 namespace MyMovieCollection.Repositories.Base.Actions
 {
-    public interface IGetAllRepository<T>
+    public interface IGetAll<T>
     {
         public Task<IEnumerable<T>> GetAllAsync();
     }
