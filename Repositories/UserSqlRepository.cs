@@ -2,6 +2,7 @@ using MyMovieCollection.Models;
 using MyMovieCollection.Repositories.Base;
 using Microsoft.Data.SqlClient;
 using Dapper;
+using System.Text;
 
 namespace MyMovieCollection.Repositories;
 public class UserSqlRepository : IUserRepository
@@ -14,28 +15,55 @@ public class UserSqlRepository : IUserRepository
         this.connection = new SqlConnection(connectionString);
     }
 
-    public Task<int> CreateAsync(User model)
+    public async Task<int> CreateAsync(User newUser)
     {
-        throw new NotImplementedException();
+        return await connection.ExecuteAsync(
+        sql: @"insert into Users (Login, Password) 
+             values(@Login, @Password)",
+        param: newUser);
     }
 
-    public Task<int> DeleteAsync(User model)
+    public async Task<int> DeleteAsync(int id)
     {
-        throw new NotImplementedException();
+        return await connection.ExecuteAsync(
+        sql: @"delete from Users where Id = @Id;", 
+        param: new { Id = id });
     }
 
-    public Task<IEnumerable<User>> GetAllAsync()
+    public async Task<IEnumerable<User>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        return await connection.QueryAsync<User>("select * from Users");
     }
 
-    public Task<User?> GetByIdAsync(int id)
+    public async Task<User?> GetByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        return await connection.QueryFirstOrDefaultAsync<User>(
+        sql: "select top 1 * from Users where Id = @Id",
+        param: new { Id = id });
     }
 
-    public Task<int> UpdateAsync(User model)
+    public async Task<int> UpdateAsync(int id, User userToUpdate)
     {
-        throw new NotImplementedException();
+        if (userToUpdate.Login != null && userToUpdate.Login != null) return 0;
+        
+        StringBuilder sb = new StringBuilder("update Users set ");
+
+        var count = 0;
+        foreach (var propertyInfo in userToUpdate.GetType().GetProperties()) 
+        {
+            if (propertyInfo.GetValue(userToUpdate) is null) continue;
+            if (count != 0) sb.Append(',');
+            sb.Append($"{propertyInfo.Name} = @{propertyInfo.Name}");
+        }
+        sb.Append(" where Id = @Id");
+
+        return await connection.ExecuteAsync(
+        sql: sb.ToString(),
+        param: new 
+        {
+            Id = id,
+            userToUpdate.Login,
+            userToUpdate.Password
+        });
     }
-}
+}   
