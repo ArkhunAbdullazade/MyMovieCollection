@@ -1,14 +1,11 @@
-using MyMovieCollection.Models;
 using MyMovieCollection.Repositories;
 using MyMovieCollection.Repositories.Base;
-using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IMovieRepository, MovieSqlRepository>();
-
 
 var app = builder.Build();
 

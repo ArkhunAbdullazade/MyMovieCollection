@@ -11,3 +11,21 @@ create table Movies(
     [ImbdScore] float,
     [MetaScore] int,
 )
+
+create table Users 
+(
+    [Id] int primary key identity,
+    [Login] nvarchar(100),
+    [Password] nvarchar(100),
+)
+
+create table Logs
+(
+    [Id] int primary key identity,
+    [UserId] int,
+    [Url] nvarchar(max),
+    [MethodType] nvarchar(20),
+    [StatusCode] int,
+    [RequestBody] nvarchar(max),
+    [ResponseBody] nvarchar(max)
+)
