@@ -5,7 +5,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped<IMovieRepository, MovieSqlRepository>();
+builder.Services.AddScoped<IUserRepository, UserSqlRepository>();
 
 var app = builder.Build();
 

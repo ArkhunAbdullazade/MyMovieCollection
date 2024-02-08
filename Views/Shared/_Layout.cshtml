@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var isAuthenticated = HttpContextAccessor.HttpContext?.Request.Cookies["Authorize"] is not null;
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -22,9 +29,23 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Movie" asp-action="Movies">Movies</a>
-                        </li>
+                        @if (isAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Movie" asp-action="Movies">Movies</a>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav flex-grow-2">
+                        @if (!isAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="neon nav-link text-dark" asp-area="" asp-controller="Identity" asp-action="Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="neon nav-link text-dark" asp-area="" asp-controller="Identity" asp-action="Signup">Signup</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

@@ -3,6 +3,7 @@ using MyMovieCollection.Repositories.Base;
 using Microsoft.Data.SqlClient;
 using Dapper;
 using System.Text;
+using MyMovieCollection.Dtos;
 
 namespace MyMovieCollection.Repositories;
 public class UserSqlRepository : IUserRepository
@@ -18,8 +19,8 @@ public class UserSqlRepository : IUserRepository
     public async Task<int> CreateAsync(User newUser)
     {
         return await connection.ExecuteAsync(
-        sql: @"insert into Users (Login, Password) 
-             values(@Login, @Password)",
+        sql: @"insert into Users (Login, Password, Email) 
+             values(@Login, @Password, @Email)",
         param: newUser);
     }
 
@@ -40,6 +41,14 @@ public class UserSqlRepository : IUserRepository
         return await connection.QueryFirstOrDefaultAsync<User>(
         sql: "select top 1 * from Users where Id = @Id",
         param: new { Id = id });
+    }
+
+    public async Task<User?> IGetByDto(UserDto dto)
+    {
+        return await connection.QueryFirstOrDefaultAsync<User>(
+        sql: @"select top 1 * from Users 
+             where Login = @Login and Password = @Password",
+        param: dto);
     }
 
     public async Task<int> UpdateAsync(int id, User userToUpdate)
@@ -63,7 +72,8 @@ public class UserSqlRepository : IUserRepository
         {
             Id = id,
             userToUpdate.Login,
-            userToUpdate.Password
+            userToUpdate.Password,
+            userToUpdate.Email
         });
     }
 }   

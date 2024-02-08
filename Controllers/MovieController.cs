@@ -1,84 +1,70 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using MyMovieCollection.Dtos;
 using MyMovieCollection.Models;
 using MyMovieCollection.Repositories.Base;
 
-namespace MyMovieCollection.Controllers
+namespace MyMovieCollection.Controllers;
+
+public class MovieController : Controller
 {
-    public class MovieController : Controller
+    private readonly IMovieRepository repository;
+
+    public MovieController(IMovieRepository repository)
     {
-        private readonly IMovieRepository repository;
+        this.repository = repository;
+    }
 
-        public MovieController(IMovieRepository repository)
+    [HttpGet] 
+    [ActionName("Movies")]
+    [Route("/Movies")]
+    public async Task<IActionResult> GetAll()
+    {
+        var movies = await repository.GetAllAsync();
+
+        return View(movies);
+    }
+
+    [HttpGet]
+    [ActionName("About")]
+    [Route("/Movie")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var movie = await repository.GetByIdAsync(id);
+
+        if (movie is null) return NotFound($"Movie with id {id} doesn't exist");
+
+        return View(movie);
+    }
+
+    [HttpGet]
+    public IActionResult Create() => View();
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromForm] MovieDto movie)
+    {
+        if (string.IsNullOrEmpty(movie.Title)) return BadRequest("Title must be filled");
+
+        if (string.IsNullOrEmpty(movie.Description)) return BadRequest("Description must be filled");
+
+        var newMovie = new Movie()
         {
-            this.repository = repository;
-        }
+            Title = movie.Title,
+            OriginalTitle = movie.OriginalTitle,
+            PosterUrl = movie.PosterUrl,
+            Description = movie.Description,
+            Budget = movie.Budget,
+            ImbdScore = movie.ImbdScore,
+            MetaScore = movie.MetaScore,
+            ReleaseDate = movie.ReleaseDate,
+        };
 
-        [HttpGet] 
-        [ActionName("Movies")]
-        [Route("/Movies")]
-        public async Task<IActionResult> GetAll()
-        {
-            var movies = await repository.GetAllAsync();
+        bool isSuccessful = await repository.CreateAsync(newMovie) > 0;
 
-            return View(movies);
-        }
+        if (!isSuccessful) return base.StatusCode((int)HttpStatusCode.InternalServerError);
 
-        [HttpGet]
-        [ActionName("About")]
-        [Route("/Movie")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var movie = await repository.GetByIdAsync(id);
+        HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
 
-            if (movie == null) return NotFound($"Movie with id {id} doesn't exist");
-
-            return View(movie);
-        }
-
-        [HttpGet]
-        public IActionResult Create() => View();
-
-        [HttpPost]
-        public async Task<IActionResult> Create([FromForm] MovieDto movie)
-        {
-            if (string.IsNullOrEmpty(movie.Title)) return BadRequest("Title must be filled");
-
-            if (string.IsNullOrEmpty(movie.Description)) return BadRequest("Description must be filled");
-
-            var newMovie = new Movie()
-            {
-                Title = movie.Title,
-                OriginalTitle = movie.OriginalTitle,
-                PosterUrl = movie.PosterUrl,
-                Description = movie.Description,
-                Budget = movie.Budget,
-                ImbdScore = movie.ImbdScore,
-                MetaScore = movie.MetaScore,
-                ReleaseDate = movie.ReleaseDate,
-            };
-
-            bool isSuccessful = await repository.CreateAsync(newMovie) > 0;
-
-            if (!isSuccessful) return base.StatusCode((int)HttpStatusCode.InternalServerError);
-
-            HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
-
-            return RedirectToAction(actionName: "Movies");
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View("Error");
-        }
+        return RedirectToAction(actionName: "Movies");
     }
 }
