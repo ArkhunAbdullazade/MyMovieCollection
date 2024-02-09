@@ -1,3 +1,4 @@
+using MyMovieCollection.Middlewares;
 using MyMovieCollection.Repositories;
 using MyMovieCollection.Repositories.Base;
 
@@ -5,10 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddHttpContextAccessor();
-
 builder.Services.AddScoped<IMovieRepository, MovieSqlRepository>();
 builder.Services.AddScoped<IUserRepository, UserSqlRepository>();
+builder.Services.AddScoped<ILogRepository, LogSqlRepository>();
 
 var app = builder.Build();
 
@@ -18,7 +18,10 @@ if (app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseMiddleware<LogMiddleware>();
+
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();
