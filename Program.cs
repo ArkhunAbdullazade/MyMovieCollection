@@ -6,6 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddTransient<LogMiddleware>();
+
 builder.Services.AddScoped<IMovieRepository, MovieSqlRepository>();
 builder.Services.AddScoped<IUserRepository, UserSqlRepository>();
 builder.Services.AddScoped<ILogRepository, LogSqlRepository>();

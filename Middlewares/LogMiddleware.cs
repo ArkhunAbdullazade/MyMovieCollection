@@ -23,10 +23,7 @@ public class LogMiddleware : IMiddleware
     
     public async Task InvokeAsync(HttpContext httpContext, RequestDelegate next)
     {        
-        if (!IsLoggingEnabled) 
-            await next.Invoke(httpContext);
-
-        else
+        if (IsLoggingEnabled) 
         {
             #pragma warning disable CS8604 // Possible null reference argument.
             int? userId = httpContext.Request.Cookies["Authorize"] is null ? null : Convert.ToInt16(dataProtector.Unprotect(httpContext.Request.Cookies["Authorize"]));
@@ -84,5 +81,7 @@ public class LogMiddleware : IMiddleware
 
             await this.repository.CreateAsync(newLog);
         }
+        
+        await next.Invoke(httpContext);
     }
 }
