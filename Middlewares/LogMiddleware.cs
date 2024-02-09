@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Extensions;
+using MyMovieCollection.Models;
 using MyMovieCollection.Repositories.Base;
 
 namespace MyMovieCollection.Middlewares;
@@ -28,7 +29,7 @@ public class LogMiddleware : IMiddleware
         else
         {
             #pragma warning disable CS8604 // Possible null reference argument.
-            var userId = httpContext.Request.Cookies["Authorize"] is null ? -1 : Convert.ToInt16(dataProtector.Unprotect(httpContext.Request.Cookies["Authorize"]));
+            int? userId = httpContext.Request.Cookies["Authorize"] is null ? null : Convert.ToInt16(dataProtector.Unprotect(httpContext.Request.Cookies["Authorize"]));
             #pragma warning restore CS8604 // Possible null reference argument.
 
             var url = httpContext.Request.GetDisplayUrl();
@@ -55,17 +56,33 @@ public class LogMiddleware : IMiddleware
             }
 
             //Response Body
-            
+            var originalBodyStream = httpContext.Response.Body;
+            string? responseContent = null;
 
-            await this.repository.CreateAsync(new Models.Log
+            using (var memoryStream = new MemoryStream())
+            {
+                httpContext.Response.Body = memoryStream;
+
+                await next(httpContext);
+
+                httpContext.Response.Body = originalBodyStream;
+
+                memoryStream.Seek(0, SeekOrigin.Begin);
+
+                responseContent = await new StreamReader(memoryStream).ReadToEndAsync();
+            }
+            
+            var newLog = new Log 
             {
                 UserId = userId,
                 Url = url,
                 MethodType = methodType,
                 StatusCode = statusCode,
                 RequestBody = requestContent,
-                // ResponseBody = responseContent,
-            });
+                ResponseBody = responseContent,
+            };
+
+            await this.repository.CreateAsync(newLog);
         }
     }
 }

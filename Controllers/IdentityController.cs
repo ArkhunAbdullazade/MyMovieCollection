@@ -27,7 +27,7 @@ public class IdentityController : Controller
     [HttpPost]
     public async Task<IActionResult> Login([FromForm] UserDto userDto)
     {
-        var user = await repository.IGetByDto(userDto);
+        var user = await repository.GetByLoginAndPassword(userDto.Login, userDto.Password);
 
         if (user is null) return BadRequest("Incorrect Login or Password!");
         

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace MyMovieCollection.Repositories.Base.Actions;
-public interface IGetByDto<T, TResult>
+public interface IGetByLoginAndPassword<T>
 {
-    public Task<TResult?> IGetByDto(T dto);
+    public Task<T?> GetByLoginAndPassword(string? login, string? password);
 }

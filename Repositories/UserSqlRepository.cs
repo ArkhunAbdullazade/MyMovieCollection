@@ -43,12 +43,16 @@ public class UserSqlRepository : IUserRepository
         param: new { Id = id });
     }
 
-    public async Task<User?> IGetByDto(UserDto dto)
+    public async Task<User?> GetByLoginAndPassword(string? login, string? password)
     {
         return await connection.QueryFirstOrDefaultAsync<User>(
         sql: @"select top 1 * from Users 
              where Login = @Login and Password = @Password",
-        param: dto);
+        param: new 
+        {
+            Login = login,
+            Password = password
+        });
     }
 
     public async Task<int> UpdateAsync(int id, User userToUpdate)
