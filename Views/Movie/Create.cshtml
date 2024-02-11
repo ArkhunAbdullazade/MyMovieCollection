@@ -12,13 +12,11 @@
 <h1>@ViewData["Title"]</h1>
 
 <form asp-asp-controller="Movie" asp-action="Create" method="post">
-    <h2>Required</h2>
     <input asp-for="@Title" type="text" class="form-control" placeholder="Title">
     <br>
     <textarea asp-for="@Description" class="form-control" placeholder="Description"></textarea>
     <br>
     <br>
-    <h2>Additional</h2>   
     <input asp-for="@OriginalTitle" type="text" class="form-control" placeholder="Original Title">
     <br>
     <input asp-for="@PosterUrl" type="text" class="form-control" placeholder="Poster Url">
