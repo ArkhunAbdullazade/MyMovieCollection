@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using TradingApp.Presentation.Models;
+using MyMovieCollection.Presentation.Models;
 
 namespace MyMovieCollection.Presentation.Controllers;
 

@@ -1,4 +1,4 @@
-namespace TradingApp.Presentation.Models;
+namespace MyMovieCollection.Presentation.Models;
 
 public class ErrorViewModel
 {
