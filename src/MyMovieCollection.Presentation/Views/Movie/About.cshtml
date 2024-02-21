@@ -43,47 +43,37 @@
     .description::before {
         content: 'Description: ';
     }
-    .container {
+    .cont {
         display: flex;
         margin: auto;
     }
     .info-div {
         margin-left: 20px;
     }
-    .imdb-score,
-    .meta-score {
+    .score {
         display: inline-block;
         line-height: 0px;
         border-radius: 50%;
         border: 2px solid;
         font-size: 32px;
+        border-color: white;
     }
 
-    .imdb-score span,
-    .meta-score span {
+    .score span {
         display: inline-block;
         padding-top: 50%;
         padding-bottom: 50%;
         margin-left: 8px;
         margin-right: 8px;
     }
-
-    .imdb-score {
-        border-color: white;
-    }
-    
-    .meta-score {
-        border-color: goldenrod;
-    }
-
 </style>
 
 
 <h1>@ViewData["Title"]</h1>
 
-<div class="container">
+<div class="cont">
     <div class="img-div">
-        <img src="@Model.PosterUrl" alt="movie poster" />
+        <img src="@Model.PosterPath" alt="movie poster" />
     </div>
     <div class="info-div">
         <span class="title"><b>@Model.Title</b></span>
@@ -92,11 +82,9 @@
         @if (@Model.ReleaseDate is null) { <span class="release-date">Release Date: Unknown</span> }
         else { <span class="release-date">Release Date: @Model.ReleaseDate</span> }
         <br>
-        @if (@Model.ImbdScore is null) { <span class="imdb-score"><span>N/R</span></span> }
-        else { <span class="imdb-score"><span>@Model.ImbdScore</span></span> }
+        @if (@Model.Score is null) { <span class="score"><span>N/R</span></span> }
+        else { <span class="imdb-score"><span>@Model.Score</span></span> }
 
-        @if (@Model.MetaScore is null) { <span class="meta-score"><span>N/R</span></span> }
-        else { <span class="meta-score"><span>@Model.MetaScore</span></span> }
-        <p class="description">@Model.Description</p>
+        <p class="description">@Model.Overview</p>
     </div>
 </div>

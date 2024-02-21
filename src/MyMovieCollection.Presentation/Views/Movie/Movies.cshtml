@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Movie>
 
 @{
-    ViewData["Title"] = "Movie Collection";
+    ViewData["Title"] = "Trending Right Now";
 }
 
 <style>
@@ -63,7 +63,6 @@
 </style>
 
 <h1>@ViewData["Title"]</h1>
-<h2>To create a new Movie <a asp-action="Create" asp-controller="Movie">click here</a>.</h2>
 
 @if (Model.Any<Movie>()) {
     <div class="list">
@@ -71,7 +70,7 @@
         {
             <div>
                 <div class="img-div">
-                    <a asp-action="About" asp-controller="Movie" asp-route-id="@movie.Id"><img src="@movie.PosterUrl" alt="movie poster" /></a>
+                    <a asp-action="About" asp-controller="Movie" asp-route-id="@movie.Id"><img src="@movie.PosterPath" alt="movie poster" /></a>
                 </div>
                 <div>
                     <span class="title"><b>@movie.Title</b></span>

@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyMovieCollection.Presentation.Models;
 
 namespace MyMovieCollection.Presentation.Controllers;
 
+[AllowAnonymous]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
@@ -13,12 +15,13 @@ public class HomeController : Controller
         _logger = logger;
     }
 
+    [Authorize]
     public IActionResult Index()
     {
         return View();
     }
 
-    public IActionResult Privacy()
+    public IActionResult Main()
     {
         return View();
     }
