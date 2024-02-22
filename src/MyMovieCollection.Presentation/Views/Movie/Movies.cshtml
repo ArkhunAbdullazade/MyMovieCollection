@@ -13,8 +13,8 @@
 
     img {
         border-radius: 10px;
-        width: 170px;
-        height: 250px;
+        width: 14.2em;
+        height: 21em;
     }
 
     span,
@@ -25,40 +25,34 @@
     }
 
     .title {
-        font-size: 40px;
-    }
-
-    .original-title {
-        font-style: italic;
-        font-size: 20px;
-    }
-
-    .release-date {
-        font-size: 20px;
-    }
-
-    .description {
-        font-size: 15px;
+        font-size: 1em;
     }
 
     .list,
     .list > div {
         flex-direction: column;
-        border: 2px solid white;
+        border: 2px solid dimgray;
         border-radius: 15px;
 }
 
     .list {
-        display: flex;
+        display: block;
         padding: 10px;
+        padding-bottom: 25px;
     }
     .list > div {
-        flex-direction: row;
+        flex-direction: column;
         margin: 10px;
         display: inline-flex;
+        width: 240px;
+        height: 350px;
+        margin: 5px;
+        margin-bottom: 40px;
+
     }
     .list > div > div{
-        margin: 15px;
+        margin: 5px;
+        text-align: center;
     }
 </style>
 
@@ -74,9 +68,6 @@
                 </div>
                 <div>
                     <span class="title"><b>@movie.Title</b></span>
-                    <span class="original-title">@movie.OriginalTitle</span>
-                    <br>
-                    <span class="release-date">@movie.ReleaseDate</span>
                 </div>
             </div>
         }
