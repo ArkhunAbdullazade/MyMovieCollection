@@ -1,5 +1,8 @@
-﻿@{
+﻿@using System.Security.Claims;
+
+@{
     var isAuthenticated = base.User.Identity?.IsAuthenticated ?? false;
+    var userName = User.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
 }
 
 <!DOCTYPE html>
@@ -49,6 +52,9 @@
                             </li>
                         }
                         else {
+                            <li class="nav-item">
+                                <a class="neon nav-link text-dark" asp-area="" asp-controller="User" asp-action="Profile">@userName</a>
+                            </li>
                             <li class="nav-item">
                                 <a class="neon nav-link text-dark" asp-area="" asp-controller="Identity" asp-action="Logout">Logout</a>
                             </li>

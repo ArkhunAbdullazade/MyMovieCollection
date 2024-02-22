@@ -2,7 +2,6 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using MyMovieCollection.Core.Models;
 using MyMovieCollection.Core.Repositories;
@@ -33,8 +32,9 @@ public class IdentityController : Controller
 
         var claims = new Claim[]
         {
-            new(ClaimTypes.Email, user.Email!),
+            new("UserId", user.Id.ToString()),
             new(ClaimTypes.Name, user.Login!),
+            new(ClaimTypes.Email, user.Email!),
         };
 
         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -61,8 +61,8 @@ public class IdentityController : Controller
             Email = userDto.Email,
             Login = userDto.Login,
             Password = userDto.Password,
+            PhoneNumber = userDto.PhoneNumber,
         };
-
         await repository.CreateAsync(newUser);
 
         return base.RedirectToAction("Login");
