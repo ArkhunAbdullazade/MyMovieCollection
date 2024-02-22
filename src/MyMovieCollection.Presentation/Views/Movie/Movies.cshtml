@@ -67,7 +67,7 @@
                     <a asp-action="About" asp-controller="Movie" asp-route-id="@movie.Id"><img src="@movie.PosterPath" alt="movie poster" /></a>
                 </div>
                 <div>
-                    <span class="title"><b>@movie.Title</b></span>
+                    <span class="title"><b>@(movie.Title ?? "Unknown")</b></span>
                 </div>
             </div>
         }
