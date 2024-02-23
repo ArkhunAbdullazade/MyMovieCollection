@@ -1,83 +1,51 @@
-using Microsoft.Data.SqlClient;
-using Dapper;
-using System.Text;
 using MyMovieCollection.Core.Repositories;
 using MyMovieCollection.Core.Models;
-using Microsoft.Extensions.Configuration;
+using MyMovieCollection.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyMovieCollection.Infrastructure.Repositories;
 public class UserSqlRepository : IUserRepository
 {
-    private readonly SqlConnection connection;
+    private readonly MyMovieCollectionDbContext dbContext;
 
-    public UserSqlRepository(IConfiguration configuration)
+    public UserSqlRepository(MyMovieCollectionDbContext dbContext)
     {
-        var connectionString = configuration.GetConnectionString("MyMovieCollectionDb");
-        this.connection = new SqlConnection(connectionString);
+        this.dbContext = dbContext;
     }
 
-    public async Task<int> CreateAsync(User newUser)
+    public async Task<bool> CreateAsync(User newUser)
     {
-        return await connection.ExecuteAsync(
-        sql: @"insert into Users (Login, Password, Email) 
-             values(@Login, @Password, @Email)",
-        param: newUser);
+        await this.dbContext.Users.AddAsync(newUser);
+        await this.dbContext.SaveChangesAsync();
+        return true;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        return await connection.ExecuteAsync(
-        sql: @"delete from Users where Id = @Id;", 
-        param: new { Id = id });
+        var userToDelete = await this.GetByIdAsync(id);
+        if (userToDelete is null) return false;
+        this.dbContext.Users.Remove(userToDelete);
+        await this.dbContext.SaveChangesAsync();
+        return true;
     }
 
-    public async Task<IEnumerable<User>> GetAllAsync()
+    public async Task<bool> UpdateAsync(int id, User userToUpdate)
     {
-        return await connection.QueryAsync<User>("select * from Users");
+        var user = await this.GetByIdAsync(id);
+        if (user is null) return false;
+        user.Login = userToUpdate.Login;
+        user.Password = userToUpdate.Password;
+        user.Email = userToUpdate.Email;
+        user.PhoneNumber = userToUpdate.PhoneNumber;
+        await this.dbContext.SaveChangesAsync();
+        return true;
     }
+    public async Task<IEnumerable<User>> GetAllAsync() => await this.dbContext.Users.ToListAsync();
 
-    public async Task<User?> GetByIdAsync(int id)
-    {
-        return await connection.QueryFirstOrDefaultAsync<User>(
-        sql: "select top 1 * from Users where Id = @Id",
-        param: new { Id = id });
-    }
+    public async Task<User?> GetByIdAsync(int id) => await this.dbContext.Users.FindAsync(id);
 
     public async Task<User?> GetByLoginAndPassword(string? login, string? password)
     {
-        return await connection.QueryFirstOrDefaultAsync<User>(
-        sql: @"select top 1 * from Users 
-             where Login = @Login and Password = @Password",
-        param: new 
-        {
-            Login = login,
-            Password = password
-        });
-    }
-
-    public async Task<int> UpdateAsync(int id, User userToUpdate)
-    {
-        if (userToUpdate.Login != null && userToUpdate.Login != null) return 0;
-        
-        StringBuilder sb = new StringBuilder("update Users set ");
-
-        var count = 0;
-        foreach (var propertyInfo in userToUpdate.GetType().GetProperties()) 
-        {
-            if (propertyInfo.GetValue(userToUpdate) is null) continue;
-            if (count != 0) sb.Append(',');
-            sb.Append($"{propertyInfo.Name} = @{propertyInfo.Name}");
-        }
-        sb.Append(" where Id = @Id");
-
-        return await connection.ExecuteAsync(
-        sql: sb.ToString(),
-        param: new 
-        {
-            Id = id,
-            userToUpdate.Login,
-            userToUpdate.Password,
-            userToUpdate.Email
-        });
+        return await this.dbContext.Users.FirstAsync(u => u.Login == login && u.Password == password);
     }
 }   

@@ -1,23 +1,12 @@
 use MyMovieCollectionDb;
 
-create table Movies(
-    [Id] int primary key identity,
-    [Title] nvarchar(100),
-    [OriginalTitle] nvarchar(100),
-    [ReleaseDate] nvarchar(50),
-    [PosterUrl] nvarchar(200),
-    [Description] text,
-    [Budget] float,
-    [ImbdScore] float,
-    [MetaScore] int,
-)
-
 create table Users 
 (
     [Id] int primary key identity,
     [Email] nvarchar(100),
     [Login] nvarchar(100),
     [Password] nvarchar(100),
+    [PhoneNumber] nvarchar(100),
 )
 
 create table Logs
@@ -28,5 +17,13 @@ create table Logs
     [MethodType] nvarchar(20),
     [StatusCode] int,
     [RequestBody] nvarchar(max),
-    [ResponseBody] nvarchar(max)
+    [ResponseBody] nvarchar(max),
+)
+
+create table UsersMovies
+(
+    [UserId] int,
+    [MovieId] int,
+    [Rating] float,
+    [Review] text,
 )

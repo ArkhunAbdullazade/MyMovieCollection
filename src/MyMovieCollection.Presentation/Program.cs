@@ -1,5 +1,8 @@
+using System.Reflection;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 using MyMovieCollection.Core.Repositories;
+using MyMovieCollection.Infrastructure.Data;
 using MyMovieCollection.Infrastructure.Repositories;
 using MyMovieCollection.Presentation.Middlewares;
 
@@ -7,8 +10,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddDbContext<MyMovieCollectionDbContext>(options =>
+{
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("MyMovieCollectionDb"),
+        useSqlOptions => { useSqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name); }
+    );
+});
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
+    .AddCookie(
+        options =>
         {
             options.LoginPath = "/Identity/Login";
             options.ReturnUrlParameter = "returnUrl";
