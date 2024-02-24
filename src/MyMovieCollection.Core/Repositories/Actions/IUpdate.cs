@@ -1,5 +1,5 @@
 namespace MyMovieCollection.Core.Repositories.Actions;
-public interface IUpdate<T>
+public interface IUpdate<T, TId>
 {
-    public Task<bool> UpdateAsync(int id, T model);
+    public Task<bool> UpdateAsync(TId id, T model);
 }  

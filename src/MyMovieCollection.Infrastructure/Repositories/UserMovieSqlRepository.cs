@@ -1,28 +1,38 @@
+using Microsoft.EntityFrameworkCore;
 using MyMovieCollection.Core.Models;
 using MyMovieCollection.Core.Repositories;
+using MyMovieCollection.Infrastructure.Data;
 
 namespace MyMovieCollection.Infrastructure.Repositories
 {
     public class UserMovieSqlRepository : IUserMovieRepository
     {
-        public async Task<UserMovie?> GetByUserAndMovieId(int userId, int movieId)
+        private readonly MyMovieCollectionDbContext dbContext;
+
+        public UserMovieSqlRepository(MyMovieCollectionDbContext dbContext)
         {
-            throw new NotImplementedException();
+            this.dbContext = dbContext;
+        }
+        public async Task<UserMovie?> GetByUserAndMovieIdAsync(string? userId, int movieId)
+        {
+            return await this.dbContext.UsersMovies.Where(um => um.UserId == userId && um.MovieId == movieId).FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<UserMovie>> GetAllByMovieIdAsync(int movieId)
         {
-            throw new NotImplementedException();
+            return await this.dbContext.UsersMovies.Where(um => um.MovieId == movieId).ToListAsync();
         }
 
-        public async Task<IEnumerable<UserMovie>> GetAllByUserIdAsync(int userId)
+        public async Task<IEnumerable<UserMovie>> GetAllByUserIdAsync(string? userId)
         {
-            throw new NotImplementedException();
+            return await this.dbContext.UsersMovies.Where(um => um.UserId == userId).ToListAsync();
         }
 
         public async Task<bool> CreateAsync(UserMovie userMovie)
         {
-            throw new NotImplementedException();
+            await this.dbContext.UsersMovies.AddAsync(userMovie);
+            await this.dbContext.SaveChangesAsync();
+            return true;
         }
     }
 }

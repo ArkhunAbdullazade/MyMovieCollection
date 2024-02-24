@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyMovieCollection.Core.Models;
 using MyMovieCollection.Core.Repositories;
@@ -13,11 +14,15 @@ namespace MyMovieCollection.Presentation.Controllers;
 [Route("/[action]")]
 public class IdentityController : Controller
 {
-    private readonly IUserRepository repository;
+    // private readonly IUserRepository repository;
+    private readonly UserManager<User> userManager;
+    private readonly SignInManager<User> signInManager;
 
-    public IdentityController(IUserRepository repository)
+    public IdentityController(UserManager<User> userManager, SignInManager<User> signInManager)
     {
-        this.repository = repository;
+        // this.repository = repository;
+        this.userManager = userManager;
+        this.signInManager = signInManager;
     }
 
     [HttpGet]
@@ -26,28 +31,17 @@ public class IdentityController : Controller
     [HttpPost]
     public async Task<IActionResult> Login([FromForm] UserDto userDto)
     {
-        var user = await repository.GetByLoginAndPassword(userDto.Login, userDto.Password);
+        var user = await this.userManager.FindByNameAsync(userDto.UserName!);
 
-        if (user is null) return BadRequest("Incorrect Login or Password!");
+        if (user is null) return BadRequest("Incorrect Login!");
 
-        var claims = new Claim[]
-        {
-            new("UserId", user.Id.ToString()),
-            new(ClaimTypes.Name, user.Login!),
-            new(ClaimTypes.Email, user.Email!),
-        };
+        var result = await this.signInManager.PasswordSignInAsync(user, userDto.Password!, true, true);
 
-        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-        await base.HttpContext.SignInAsync(
-            scheme: CookieAuthenticationDefaults.AuthenticationScheme,
-            principal: new ClaimsPrincipal(claimsIdentity)
-        );
+        if (!result.Succeeded) return BadRequest("Incorrect Password!");
 
         return string.IsNullOrWhiteSpace(userDto.ReturnUrl)
             ? base.RedirectToAction(controllerName: "Home", actionName: "Index")
             : base.RedirectPermanent(userDto.ReturnUrl);
-
     }
 
     [HttpGet]
@@ -59,11 +53,19 @@ public class IdentityController : Controller
         var newUser = new User()
         {
             Email = userDto.Email,
-            Login = userDto.Login,
-            Password = userDto.Password,
+            UserName = userDto.UserName,
             PhoneNumber = userDto.PhoneNumber,
         };
-        await repository.CreateAsync(newUser);
+        var result = await this.userManager.CreateAsync(newUser, userDto.Password!);
+
+        if(!result.Succeeded) {
+            foreach (var error in result.Errors) 
+            {
+                base.ModelState.AddModelError(error.Code, error.Description);
+            }
+
+            return base.View("Signup");
+        }
 
         return base.RedirectToAction("Login");
     }
@@ -72,8 +74,7 @@ public class IdentityController : Controller
     [Authorize]
     public async Task<IActionResult> Logout()
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
+        await this.signInManager.SignOutAsync();
         return RedirectToAction(controllerName: "Home", actionName: "Main");
     }
 }

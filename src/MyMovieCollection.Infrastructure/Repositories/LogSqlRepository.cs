@@ -1,8 +1,5 @@
-using Microsoft.Data.SqlClient;
-using Dapper;
 using MyMovieCollection.Core.Repositories;
 using MyMovieCollection.Core.Models;
-using Microsoft.Extensions.Configuration;
 using MyMovieCollection.Infrastructure.Data;
 
 namespace MyMovieCollection.Infrastructure.Repositories;

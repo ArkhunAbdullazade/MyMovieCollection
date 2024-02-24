@@ -1,6 +1,8 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MyMovieCollection.Core.Models;
 using MyMovieCollection.Core.Repositories;
 using MyMovieCollection.Infrastructure.Data;
 using MyMovieCollection.Infrastructure.Repositories;
@@ -18,6 +20,10 @@ builder.Services.AddDbContext<MyMovieCollectionDbContext>(options =>
     );
 });
 
+builder.Services.AddIdentity<User, IdentityRole>(options => {
+    options.Password.RequireNonAlphanumeric = true;
+}).AddEntityFrameworkStores<MyMovieCollectionDbContext>();
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(
         options =>
@@ -32,7 +38,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddTransient<LogMiddleware>();
 
 builder.Services.AddScoped<IMovieRepository, MovieSqlRepository>();
-builder.Services.AddScoped<IUserRepository, UserSqlRepository>();
+// builder.Services.AddScoped<IUserRepository, UserSqlRepository>();
 builder.Services.AddScoped<ILogRepository, LogSqlRepository>();
 
 var app = builder.Build();

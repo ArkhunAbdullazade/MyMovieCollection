@@ -1,51 +1,45 @@
-using MyMovieCollection.Core.Repositories;
-using MyMovieCollection.Core.Models;
-using MyMovieCollection.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+// using MyMovieCollection.Core.Repositories;
+// using MyMovieCollection.Core.Models;
+// using MyMovieCollection.Infrastructure.Data;
+// using Microsoft.EntityFrameworkCore;
+// using Microsoft.AspNetCore.Identity;
 
-namespace MyMovieCollection.Infrastructure.Repositories;
-public class UserSqlRepository : IUserRepository
-{
-    private readonly MyMovieCollectionDbContext dbContext;
+// namespace MyMovieCollection.Infrastructure.Repositories;
+// public class UserSqlRepository : IUserRepository
+// {
+//     private readonly UserManager<User> userManager;
 
-    public UserSqlRepository(MyMovieCollectionDbContext dbContext)
-    {
-        this.dbContext = dbContext;
-    }
+//     public UserSqlRepository(UserManager<User> userManager)
+//     {
+//         this.userManager = userManager;
+//     }
 
-    public async Task<bool> CreateAsync(User newUser)
-    {
-        await this.dbContext.Users.AddAsync(newUser);
-        await this.dbContext.SaveChangesAsync();
-        return true;
-    }
+//     public async Task<bool> IdentityCreateAsync(User newUser, string password)
+//     {
+//         return await this.userManager.CreateAsync(newUser, password);
+//     }
 
-    public async Task<bool> DeleteAsync(int id)
-    {
-        var userToDelete = await this.GetByIdAsync(id);
-        if (userToDelete is null) return false;
-        this.dbContext.Users.Remove(userToDelete);
-        await this.dbContext.SaveChangesAsync();
-        return true;
-    }
+//     public async Task<bool> DeleteAsync(string id)
+//     {
+//         var userToDelete = await this.GetByIdAsync(id);
+//         return (await this.userManager.DeleteAsync(userToDelete!)).Succeeded;
+//     }
 
-    public async Task<bool> UpdateAsync(int id, User userToUpdate)
-    {
-        var user = await this.GetByIdAsync(id);
-        if (user is null) return false;
-        user.Login = userToUpdate.Login;
-        user.Password = userToUpdate.Password;
-        user.Email = userToUpdate.Email;
-        user.PhoneNumber = userToUpdate.PhoneNumber;
-        await this.dbContext.SaveChangesAsync();
-        return true;
-    }
-    public async Task<IEnumerable<User>> GetAllAsync() => await this.dbContext.Users.ToListAsync();
+//     public async Task<bool> UpdateAsync(string id, User userToUpdate)
+//     {
+//         var user = await this.GetByIdAsync(id);
+//         if (user is null) return false;
+//         user.UserName = userToUpdate.UserName;
+//         user.Email = userToUpdate.Email;
+//         user.PhoneNumber = userToUpdate.PhoneNumber;
+//         return (await this.userManager.UpdateAsync(userToUpdate)).Succeeded;
+//     }
+//     public IEnumerable<User> GetAll() => this.userManager.Users;
 
-    public async Task<User?> GetByIdAsync(int id) => await this.dbContext.Users.FindAsync(id);
+//     public async Task<User?> GetByIdAsync(string id) => await this.userManager.FindByIdAsync(id);
 
-    public async Task<User?> GetByLoginAndPassword(string? login, string? password)
-    {
-        return await this.dbContext.Users.FirstAsync(u => u.Login == login && u.Password == password);
-    }
-}   
+//     public async Task<User?> GetByLoginAsync(string? login)
+//     {
+//         return await this.userManager.FindByNameAsync(login!);
+//     }
+// }   

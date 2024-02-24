@@ -1,7 +1,7 @@
 @{
     ViewData["Title"] = $"Login";
 
-    string Login = string.Empty;
+    string UserName = string.Empty;
     string Password = string.Empty;
     string? ReturnUrl = ViewData["returnUrl"] as string;
 }
@@ -9,11 +9,13 @@
 <div>
     <h1>@ViewData["Title"]</h1>
     <form method="post" asp-action="Login" asp-controller="Identity">
+        <div class="text-danger" asp-validation-summary="All"></div>
+        
         <input type="hidden" asp-for="@ReturnUrl">
         
         <div class="form-outline mb-4">
-            <input type="text" asp-for="@Login" class="form-control" placeholder="Login"/>
-            <span asp-validation-for="@Login" class="text-danger"></span>
+            <input type="text" asp-for="@UserName" class="form-control" placeholder="Login"/>
+            <span asp-validation-for="@UserName" class="text-danger"></span>
         </div>
 
         <div class="form-outline mb-4">

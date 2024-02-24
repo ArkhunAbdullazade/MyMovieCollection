@@ -1,5 +1,5 @@
 namespace MyMovieCollection.Core.Repositories.Actions;
-public interface IDelete<T>
+public interface IDelete<T, TId>
 {
-    public Task<bool> DeleteAsync(int id);
+    public Task<bool> DeleteAsync(TId id);
 }

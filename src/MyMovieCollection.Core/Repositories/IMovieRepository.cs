@@ -1,5 +1,5 @@
 using MyMovieCollection.Core.Models;
-using MyMovieCollection.Core.Repositories.Actions;
+using MyMovieCollection.Core.Repositories.Actions.Get;
 
 namespace MyMovieCollection.Core.Repositories;
-public interface IMovieRepository : IGetAll<Movie>, IGetById<Movie> { }
+public interface IMovieRepository : IGetAllAsync<Movie>, IGetById<Movie, int> { }
