@@ -3,23 +3,22 @@ using Dapper;
 using MyMovieCollection.Core.Repositories;
 using MyMovieCollection.Core.Models;
 using Microsoft.Extensions.Configuration;
+using MyMovieCollection.Infrastructure.Data;
 
 namespace MyMovieCollection.Infrastructure.Repositories;
 public class LogSqlRepository : ILogRepository
 {
-    private readonly SqlConnection connection;
+    private readonly MyMovieCollectionDbContext dbContext;
 
-    public LogSqlRepository(IConfiguration configuration)
+    public LogSqlRepository(MyMovieCollectionDbContext dbContext)
     {
-        var connectionString = configuration.GetConnectionString("MyMovieCollectionDb");
-        this.connection = new SqlConnection(connectionString);
+        this.dbContext = dbContext;
     }
 
-    public async Task<int> CreateAsync(Log newLog)
+    public async Task<bool> CreateAsync(Log newLog)
     {
-        return await connection.ExecuteAsync(
-        sql: @"insert into Logs (UserId, Url, MethodType, StatusCode, RequestBody, ResponseBody) 
-             values (@UserId, @Url, @MethodType, @StatusCode, @RequestBody, @ResponseBody);",
-        param: newLog);
+        await this.dbContext.Logs.AddAsync(newLog);
+        await this.dbContext.SaveChangesAsync();
+        return true;
     }
 }

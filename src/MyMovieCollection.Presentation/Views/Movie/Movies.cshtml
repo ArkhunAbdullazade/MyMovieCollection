@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Movie>
 
 @{
-    ViewData["Title"] = "Movie Collection";
+    ViewData["Title"] = "Trending Right Now";
 }
 
 <style>
@@ -13,8 +13,8 @@
 
     img {
         border-radius: 10px;
-        width: 170px;
-        height: 250px;
+        width: 14.2em;
+        height: 21em;
     }
 
     span,
@@ -25,45 +25,38 @@
     }
 
     .title {
-        font-size: 40px;
-    }
-
-    .original-title {
-        font-style: italic;
-        font-size: 20px;
-    }
-
-    .release-date {
-        font-size: 20px;
-    }
-
-    .description {
-        font-size: 15px;
+        font-size: 1em;
     }
 
     .list,
     .list > div {
         flex-direction: column;
-        border: 2px solid white;
+        border: 2px solid dimgray;
         border-radius: 15px;
 }
 
     .list {
-        display: flex;
+        display: block;
         padding: 10px;
+        padding-bottom: 25px;
     }
     .list > div {
-        flex-direction: row;
+        flex-direction: column;
         margin: 10px;
         display: inline-flex;
+        width: 240px;
+        height: 350px;
+        margin: 5px;
+        margin-bottom: 40px;
+
     }
     .list > div > div{
-        margin: 15px;
+        margin: 5px;
+        text-align: center;
     }
 </style>
 
 <h1>@ViewData["Title"]</h1>
-<h2>To create a new Movie <a asp-action="Create" asp-controller="Movie">click here</a>.</h2>
 
 @if (Model.Any<Movie>()) {
     <div class="list">
@@ -71,13 +64,10 @@
         {
             <div>
                 <div class="img-div">
-                    <a asp-action="About" asp-controller="Movie" asp-route-id="@movie.Id"><img src="@movie.PosterUrl" alt="movie poster" /></a>
+                    <a asp-action="About" asp-controller="Movie" asp-route-id="@movie.Id"><img src="@movie.PosterPath" alt="movie poster" /></a>
                 </div>
                 <div>
-                    <span class="title"><b>@movie.Title</b></span>
-                    <span class="original-title">@movie.OriginalTitle</span>
-                    <br>
-                    <span class="release-date">@movie.ReleaseDate</span>
+                    <span class="title"><b>@(movie.Title ?? "Unknown")</b></span>
                 </div>
             </div>
         }

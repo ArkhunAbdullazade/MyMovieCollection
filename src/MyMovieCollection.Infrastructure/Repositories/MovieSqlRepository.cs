@@ -1,36 +1,29 @@
-using Microsoft.Data.SqlClient;
-using Dapper;
 using MyMovieCollection.Core.Repositories;
 using MyMovieCollection.Core.Models;
-using Microsoft.Extensions.Configuration;
+using System.Net.Http.Json;
+using MyMovieCollection.Core.Services;
 
 namespace MyMovieCollection.Infrastructure.Repositories;
 public class MovieSqlRepository : IMovieRepository
 {
-    private readonly SqlConnection connection;
+    private const string apiKey = "90b3ceddfc15385f8acef82371c5db57";
+    private const string urlBase = "https://api.themoviedb.org/";
+    private HttpClient httpClient;
 
-    public MovieSqlRepository(IConfiguration configuration)
+    public MovieSqlRepository() 
     {
-        var connectionString = configuration.GetConnectionString("MyMovieCollectionDb");
-        this.connection = new SqlConnection(connectionString);
+        this.httpClient = new HttpClient();
     }
 
     public async Task<IEnumerable<Movie>> GetAllAsync()
     {
-        return await connection.QueryAsync<Movie>("select * from Movies");
+        var queryString = $"{urlBase}{TmdbApiQueries.Trending}?api_key={apiKey}";
+        var moviesResponse = await httpClient.GetFromJsonAsync<MoviesResponse>(queryString);
+        return moviesResponse?.results ?? Enumerable.Empty<Movie>();
     }
     public async Task<Movie?> GetByIdAsync(int id)
     {
-        return await connection.QueryFirstOrDefaultAsync<Movie>(
-        sql: "select top 1 * from Movies where Id = @Id",
-        param: new { Id = id });
+        var queryString = $"{urlBase}3/movie/{id}?api_key={apiKey}";
+        return await httpClient.GetFromJsonAsync<Movie>(queryString);
     }
-
-    public async Task<int> CreateAsync(Movie newMovie)
-    {
-        return await connection.ExecuteAsync(
-        sql: @"insert into Movies (Title, OriginalTitle, PosterUrl, Description, Budget, ImbdScore, MetaScore, ReleaseDate) 
-             values(@Title, @OriginalTitle, @PosterUrl, @Description, @Budget, @ImbdScore, @MetaScore, @ReleaseDate)", 
-        param: newMovie);
-    }
-}
+} 

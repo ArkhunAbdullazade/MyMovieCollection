@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyMovieCollection.Core.Models;
 using MyMovieCollection.Core.Repositories;
@@ -6,6 +7,7 @@ using MyMovieCollectionю.Presentation.Dtos;
 
 namespace MyMovieCollection.Presentation.Controllers;
 
+[Authorize]
 public class MovieController : Controller
 {
     private readonly IMovieRepository repository;
@@ -21,7 +23,6 @@ public class MovieController : Controller
     public async Task<IActionResult> GetAll()
     {
         var movies = await repository.GetAllAsync();
-
         return View(movies);
     }
 
@@ -35,36 +36,5 @@ public class MovieController : Controller
         if (movie is null) return NotFound($"Movie with id {id} doesn't exist");
 
         return View(movie);
-    }
-
-    [HttpGet]
-    public IActionResult Create() => View();
-
-    [HttpPost]
-    public async Task<IActionResult> Create([FromForm] MovieDto movie)
-    {
-        if (string.IsNullOrEmpty(movie.Title)) return BadRequest("Title must be filled");
-
-        if (string.IsNullOrEmpty(movie.Description)) return BadRequest("Description must be filled");
-
-        var newMovie = new Movie()
-        {
-            Title = movie.Title,
-            OriginalTitle = movie.OriginalTitle,
-            PosterUrl = movie.PosterUrl,
-            Description = movie.Description,
-            Budget = movie.Budget,
-            ImbdScore = movie.ImbdScore,
-            MetaScore = movie.MetaScore,
-            ReleaseDate = movie.ReleaseDate,
-        };
-
-        bool isSuccessful = await repository.CreateAsync(newMovie) > 0;
-
-        if (!isSuccessful) return base.StatusCode((int)HttpStatusCode.InternalServerError);
-
-        HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
-
-        return RedirectToAction(actionName: "Movies");
     }
 }
