@@ -2,6 +2,13 @@
 
 @{
     ViewData["Title"] = $"About '{Model.Title}'";
+
+    var allReviews = ViewData["Reviews"] as IEnumerable<UserMovie>;
+    bool isWatched = (ViewData["IsWatched"] as string ?? "false") == "true";
+    
+    int Id = Model.Id;
+    string? Score = string.Empty;
+    string? Review = string.Empty;
 }
 
 <style>
@@ -15,7 +22,7 @@
 
     img {
         border-radius: 10px;
-        width: 300px;
+        width: 340px;
         height: 500px;
     }
 
@@ -56,7 +63,7 @@
         border-radius: 50%;
         border: 2px solid;
         font-size: 32px;
-        border-color: white;
+        border-color: black;
     }
 
     .score span {
@@ -79,12 +86,58 @@
         <span class="title"><b>@Model.Title</b></span>
         <span class="original-title">@Model.OriginalTitle</span>
         <br>
-        @if (@Model.ReleaseDate is null) { <span class="release-date">Release Date: Unknown</span> }
-        else { <span class="release-date">Release Date: @Model.ReleaseDate</span> }
+        <span class="release-date">Release Date: @Model.ReleaseDate</span>
         <br>
         @if (@Model.Score is null) { <span class="score"><span>N/R</span></span> }
-        else { <span class="imdb-score"><span>@Model.Score</span></span> }
-
+        else { <span class="score"><span>@(MathF.Round((float)Model.Score, 1))</span></span> }
+        <br>
         <p class="description">@Model.Overview</p>
+
+        @if(isWatched) {
+            <a class="btn btn-primary" role="button" asp-area="" asp-controller="Movie" asp-action="Review" asp-route-movieId="@Model.Id">My Review</a>
+        }
+        else {
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reviewModal">Add to Watched</button>
+        }
+
+        <!-- Create Review Modal -->
+        <div class="modal fade" id="reviewModal" role="dialog">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="addMovieModal">Review this Movie</h4>
+                    </div>
+                    <form method="post" asp-action="Add" asp-controller="Movie">
+                        <div class="modal-body">
+                            <input type="hidden" asp-for="@Id">
+                            <div class="form-group">
+                                <label for="review-text" class="col-form-label">Review:</label>
+                                <textarea asp-for="@Review" class="form-control" id="review-text"></textarea>
+                            </div>
+                            <br>
+                            <div class="form-group">
+                                <select asp-for="@Score" class="form-control" id="rating" name="score">
+                                    <option value="">no rating</option>
+                                    <option value="1">✪ 1 stars</option>
+                                    <option value="2">✪ 2 stars</option>
+                                    <option value="3">✪ 3 stars</option>
+                                    <option value="4">✪ 4 stars</option>
+                                    <option value="5">✪ 5 stars</option>
+                                    <option value="6">✪ 6 stars</option>
+                                    <option value="7">✪ 7 stars</option>
+                                    <option value="8">✪ 8 stars</option>
+                                    <option value="9">✪ 9 stars</option>
+                                    <option value="10">✪ 10 stars</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

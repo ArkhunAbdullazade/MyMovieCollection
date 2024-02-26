@@ -22,23 +22,15 @@ builder.Services.AddDbContext<MyMovieCollectionDbContext>(options =>
 
 builder.Services.AddIdentity<User, IdentityRole>(options => {
     options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
 }).AddEntityFrameworkStores<MyMovieCollectionDbContext>();
-
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(
-        options =>
-        {
-            options.LoginPath = "/Identity/Login";
-            options.ReturnUrlParameter = "returnUrl";
-        }
-    );
 
 builder.Services.AddAuthorization();
 
 builder.Services.AddTransient<LogMiddleware>();
 
+builder.Services.AddScoped<IUserMovieRepository, UserMovieSqlRepository>();
 builder.Services.AddScoped<IMovieRepository, MovieSqlRepository>();
-// builder.Services.AddScoped<IUserRepository, UserSqlRepository>();
 builder.Services.AddScoped<ILogRepository, LogSqlRepository>();
 
 var app = builder.Build();

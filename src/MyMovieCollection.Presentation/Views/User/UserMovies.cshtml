@@ -1,7 +1,7 @@
-﻿@model IEnumerable<Movie>
+@model IEnumerable<Movie>
 
 @{
-    ViewData["Title"] = "Trending Right Now";
+    ViewData["Title"] = "My Movies";
 }
 
 <style>
@@ -39,8 +39,10 @@
         display: block;
         padding: 10px;
         padding-bottom: 25px;
+        align-items: center;
+        align-content: center;
     }
-    .list > div {
+    .list > div {   
         flex-direction: column;
         margin: 10px;
         display: inline-flex;
@@ -48,7 +50,7 @@
         height: 350px;
         margin: 5px;
         margin-bottom: 40px;
-
+        position: relative;
     }
     .list > div > div{
         margin: 5px;
@@ -69,11 +71,10 @@
                 <div>
                     <span class="title"><b>@(movie.Title ?? "Unknown")</b></span>
                 </div>
-                
             </div>
         }
     </div>
 }
 else {
-    <h3>There is no movie in this category.</h3>
+    <h3>There is no movie yet.</h3>
 }

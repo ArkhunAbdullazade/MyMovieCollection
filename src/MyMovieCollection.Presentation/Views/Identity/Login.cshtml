@@ -10,7 +10,7 @@
     <h1>@ViewData["Title"]</h1>
     <form method="post" asp-action="Login" asp-controller="Identity">
         <div class="text-danger" asp-validation-summary="All"></div>
-        
+
         <input type="hidden" asp-for="@ReturnUrl">
         
         <div class="form-outline mb-4">
