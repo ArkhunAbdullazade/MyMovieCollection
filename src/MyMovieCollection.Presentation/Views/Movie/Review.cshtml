@@ -101,7 +101,7 @@
     <div class="info-div">
         <span class="score"><span>@Model.Rating.0</span></span> 
         @if (currentMovie?.Score is null) { <span class="score"><span>N/R</span></span> }
-        else { <span class="score"><span>@(MathF.Round((float)currentMovie?.Score, 1))</span></span> }
+        else { <span class="score"><span>@(currentMovie is null ? "N/R" : MathF.Round((float)currentMovie.Score, 1).ToString())</span></span> }
         <br>
         <p class="description">@Model.Review</p>
     </div>
