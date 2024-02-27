@@ -12,8 +12,6 @@ public class Movie
 
     [JsonPropertyName("original_language")]
     public string? OriginalLanguage { get; set; }
-    [JsonPropertyName("backdrop_path")]
-    public string? BackdropPath { get; set; }
     [JsonPropertyName("genre_ids")]
     public List<int>? Genres { get; set; }
     [JsonPropertyName("vote_average")]
@@ -29,5 +27,13 @@ public class Movie
     { 
         get => $"https://image.tmdb.org/t/p/original/{posterPath}";
         set => posterPath = value;
+    }
+
+    private string? backdropPath;
+    [JsonPropertyName("backdrop_path")]
+    public string? BackdropPath
+    { 
+        get => $"https://image.tmdb.org/t/p/original/{backdropPath}";
+        set => backdropPath = value;
     }
 }

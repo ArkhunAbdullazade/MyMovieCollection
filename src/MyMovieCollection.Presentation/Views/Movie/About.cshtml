@@ -1,8 +1,6 @@
 @model Movie
 
 @{
-    ViewData["Title"] = $"About '{Model.Title}'";
-
     var allReviews = ViewData["Reviews"] as IEnumerable<UserMovie>;
     bool isWatched = (ViewData["IsWatched"] as string ?? "false") == "true";
     
@@ -20,10 +18,21 @@
         font-size: 60px;
     }
 
-    img {
+    .img-div > img {
         border-radius: 10px;
-        width: 340px;
+        width: 272px;
+        height: 400px;
+    }
+
+    .backdrop-div {
+        width: 1000px;
         height: 500px;
+        background-position: right bottom;
+        background-size: cover;
+        background-image: url(@Model.BackdropPath);
+        box-shadow: 0 0 20px 20px #2d3238 inset;
+        position: sticky;
+        margin: auto;
     }
 
     span,
@@ -51,11 +60,17 @@
         content: 'Description: ';
     }
     .cont {
-        display: flex;
+        display: inline;
+        align-items: center;
         margin: auto;
     }
     .info-div {
-        margin-left: 20px;
+        padding-left: 10px;
+    }
+    .info {
+        margin: auto;
+        display: flex;
+        width: 900px;
     }
     .score {
         display: inline-block;
@@ -63,7 +78,7 @@
         border-radius: 50%;
         border: 2px solid;
         font-size: 32px;
-        border-color: black;
+        border-color: white;
     }
 
     .score span {
@@ -73,71 +88,103 @@
         margin-left: 8px;
         margin-right: 8px;
     }
+
+    .adult {
+        display: inline-block;
+        line-height: 0px;
+        border: 4px solid;
+        border-radius: 50%;
+        font-size: 12px;
+        font-weight: bolder;
+        color: red;
+        border-color: red;
+        transform: translateY(-10%);
+    }
+
+    .adult span {
+        display: inline-block;
+        padding-top: 50%;
+        padding-bottom: 50%;
+        margin-left: 8px;
+        margin-right: 8px;
+    }
+    
+    .modal-header,
+    .modal-footer {
+        background-color: #2d3238;
+    }
+
+    .modal-body  {
+        background-color: #2d3238;
+    }
 </style>
 
-
-<h1>@ViewData["Title"]</h1>
-
 <div class="cont">
-    <div class="img-div">
-        <img src="@Model.PosterPath" alt="movie poster" />
+    <div class="backdrop">
+        <div class="backdrop-div"></div>
     </div>
-    <div class="info-div">
-        <span class="title"><b>@Model.Title</b></span>
-        <span class="original-title">@Model.OriginalTitle</span>
-        <br>
-        <span class="release-date">Release Date: @Model.ReleaseDate</span>
-        <br>
-        @if (@Model.Score is null) { <span class="score"><span>N/R</span></span> }
-        else { <span class="score"><span>@(MathF.Round((float)Model.Score, 1))</span></span> }
-        <br>
-        <p class="description">@Model.Overview</p>
+    <div class="info">
+        <div class="img-div">
+            <img src="@Model.PosterPath" alt="movie poster" />
+        </div>
+        <div class="info-div">
+            <span class="title"><b>@Model.Title</b></span>
+            <span class="original-title">@Model.OriginalTitle</span>
+            <span class="release-date">@Model.ReleaseDate</span>
+            @if (@Model.Adult) {<span class="adult"><span>18+</span></span> }
+            <br>
+            @if (@Model.Score is null) { <span class="score"><span>N/R</span></span> }
+            else { <span class="score"><span>@(MathF.Round((float)Model.Score, 1))</span></span> }
+            <br>
+            <p class="description">@Model.Overview</p>
 
-        @if(isWatched) {
-            <a class="btn btn-primary" role="button" asp-area="" asp-controller="Movie" asp-action="Review" asp-route-movieId="@Model.Id">My Review</a>
-        }
-        else {
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reviewModal">Add to Watched</button>
-        }
+            @if(isWatched) {
+                <a class="btn btn-warning" role="button" asp-area="" asp-controller="Movie" asp-action="Review" asp-route-movieId="@Model.Id">My Review</a>
+            }
+            else {
+                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#reviewModal">Add to Watched</button>
+            }
 
-        <!-- Create Review Modal -->
-        <div class="modal fade" id="reviewModal" role="dialog">
-            <div class="modal-dialog modal-sm">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="addMovieModal">Review this Movie</h4>
+            <!-- Create Review Modal -->
+            <div class="modal fade" id="reviewModal" role="dialog">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Review this Movie</h4>
+                        </div>
+                        <form method="post" asp-action="Add" asp-controller="Movie">
+                            <div class="modal-body">
+                                <input type="hidden" asp-for="@Id">
+                                <div class="form-group">
+                                    <label for="review-text" class="col-form-label">Review:</label>
+                                    <textarea asp-for="@Review" class="form-control" id="review-text"></textarea>
+                                </div>
+                                <br>
+                                <div class="form-group">
+                                    <select asp-for="@Score" class="form-control" id="rating" name="score">
+                                        <option value="">no rating</option>
+                                        <option value="1">✪ 1 stars</option>
+                                        <option value="2">✪ 2 stars</option>
+                                        <option value="3">✪ 3 stars</option>
+                                        <option value="4">✪ 4 stars</option>
+                                        <option value="5">✪ 5 stars</option>
+                                        <option value="6">✪ 6 stars</option>
+                                        <option value="7">✪ 7 stars</option>
+                                        <option value="8">✪ 8 stars</option>
+                                        <option value="9">✪ 9 stars</option>
+                                        <option value="10">✪ 10 stars</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-warning">Save changes</button>
+                            </div>
+                        </form>
                     </div>
-                    <form method="post" asp-action="Add" asp-controller="Movie">
-                        <div class="modal-body">
-                            <input type="hidden" asp-for="@Id">
-                            <div class="form-group">
-                                <label for="review-text" class="col-form-label">Review:</label>
-                                <textarea asp-for="@Review" class="form-control" id="review-text"></textarea>
-                            </div>
-                            <br>
-                            <div class="form-group">
-                                <select asp-for="@Score" class="form-control" id="rating" name="score">
-                                    <option value="">no rating</option>
-                                    <option value="1">✪ 1 stars</option>
-                                    <option value="2">✪ 2 stars</option>
-                                    <option value="3">✪ 3 stars</option>
-                                    <option value="4">✪ 4 stars</option>
-                                    <option value="5">✪ 5 stars</option>
-                                    <option value="6">✪ 6 stars</option>
-                                    <option value="7">✪ 7 stars</option>
-                                    <option value="8">✪ 8 stars</option>
-                                    <option value="9">✪ 9 stars</option>
-                                    <option value="10">✪ 10 stars</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save changes</button>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
     </div>
+    
 </div>
