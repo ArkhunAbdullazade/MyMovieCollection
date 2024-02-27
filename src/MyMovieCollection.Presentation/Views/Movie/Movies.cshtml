@@ -42,12 +42,11 @@
     }
     .list > div {
         flex-direction: column;
-        margin: 10px;
         display: inline-flex;
         width: 240px;
         height: 350px;
         margin: 5px;
-        margin-bottom: 40px;
+        margin-bottom: 55px;
 
     }
     .list > div > div{
@@ -64,7 +63,7 @@
         {
             <div>
                 <div class="img-div">
-                    <a asp-action="About" asp-controller="Movie" asp-route-id="@movie.Id"><img src="@movie.PosterPath" alt="movie poster" /></a>
+                    <a asp-action="About" asp-controller="Movie" asp-route-id="@movie.Id"><img src="@(movie.PosterPath ?? "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Black.png/220px-Black.png")" alt="movie poster" /></a>
                 </div>
                 <div>
                     <span class="title"><b>@(movie.Title ?? "Unknown")</b></span>

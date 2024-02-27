@@ -14,6 +14,7 @@ public class MovieController : Controller
     private readonly IUserMovieRepository userMovieRepository;
     private readonly UserManager<User> userManager;
 
+
     public MovieController(IMovieRepository movieRepository, IUserMovieRepository userMovieRepository, UserManager<User> userManager)
     {
         this.movieRepository = movieRepository;
@@ -24,9 +25,12 @@ public class MovieController : Controller
     [HttpGet] 
     [ActionName("Movies")]
     [Route("/Movies")]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(string? search = null)
     {
-        var movies = await movieRepository.GetAllAsync();
+        IEnumerable<Movie> movies;
+
+        if (string.IsNullOrWhiteSpace(search)) movies = await movieRepository.GetAllBySearchAsync();
+        else movies = await movieRepository.GetAllBySearchAsync(1, search);
         return View(movies);
     }
 

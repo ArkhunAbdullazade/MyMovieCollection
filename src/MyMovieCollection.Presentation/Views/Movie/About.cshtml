@@ -27,7 +27,7 @@
         background-position: right bottom;
         background-size: cover;
         background-image: url(@Model.BackdropPath);
-        box-shadow: 0 0 15px 15px #2d3238 inset;
+        box-shadow: 0 0 9px 14px #2d3238 inset;
         position: sticky;
         margin: auto;
     }
@@ -134,7 +134,7 @@
     </div>
     <div class="info">
         <div class="img-div">
-            <img src="@Model.PosterPath" alt="movie poster" />
+            <img src="@(Model.PosterPath ?? "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Black.png/220px-Black.png")" alt="movie poster" />
         </div>
         <div class="info-div">
             <span class="title"><b>@Model.Title</b></span>
@@ -160,7 +160,7 @@
             <div class="reviews">
                 @foreach (var review in allReviews.Take(4))
                 {
-                    <div class="card bg-dark mb-3" style="max-width: 9rem;">
+                    <div class="card bg-dark mb-3" style="max-width: 10rem;">
                         <div class="card-body">
                             <h5><a class="link-warning" asp-area="" asp-controller="User" asp-action="Profile" asp-route-itemid="@review.UserId">@review.User?.UserName</a></h5>
                             <button onclick="changeReviewModalData('@review.Review', '@(review.Rating is not null ? MathF.Round((float)currUserReview?.Rating!, 1).ToString() : "N/R")', '@review.User?.UserName')" type="button" class="btn btn-warning" data-toggle="modal" data-target="#reviewModal">Read</button>
@@ -228,6 +228,9 @@
                     @if (@Model.Score is null) { <span class="score"><span>N/R</span></span> }
                     else { <span class="score"><span>@(MathF.Round((float)Model.Score, 1))</span></span> }
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

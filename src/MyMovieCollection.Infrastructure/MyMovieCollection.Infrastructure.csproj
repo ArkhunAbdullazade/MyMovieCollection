@@ -20,5 +20,6 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.15" />
+    <PackageReference Include="TMDbLib" Version="2.1.0" />
   </ItemGroup>
 </Project>

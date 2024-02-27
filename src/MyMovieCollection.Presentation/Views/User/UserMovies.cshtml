@@ -66,7 +66,7 @@
         {
             <div>
                 <div class="img-div">
-                    <a asp-action="About" asp-controller="Movie" asp-route-id="@movie.Id"><img src="@movie.PosterPath" alt="movie poster" /></a>
+                    <a asp-action="About" asp-controller="Movie" asp-route-id="@movie.Id"><img src="@(movie.PosterPath ?? "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Black.png/220px-Black.png")" alt="movie poster" /></a>
                 </div>
                 <div>
                     <span class="title"><b>@(movie.Title ?? "Unknown")</b></span>

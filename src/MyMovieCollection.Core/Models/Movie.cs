@@ -9,29 +9,10 @@ public class Movie
     public string? Title { get; set; }
     public float? Budget { get; set; }
     public string? Overview { get; set; }
-
-    [JsonPropertyName("original_language")]
     public string? OriginalLanguage { get; set; }
-    [JsonPropertyName("vote_average")]
     public float? Score { get; set; }
-    [JsonPropertyName("release_date")]
     public string? ReleaseDate { get; set; }
-    [JsonPropertyName("original_title")]
     public string? OriginalTitle { get; set; }
-    
-    private string? posterPath;
-    [JsonPropertyName("poster_path")]
-    public string? PosterPath 
-    { 
-        get => $"https://image.tmdb.org/t/p/original/{posterPath}";
-        set => posterPath = value;
-    }
-
-    private string? backdropPath;
-    [JsonPropertyName("backdrop_path")]
-    public string? BackdropPath
-    { 
-        get => $"https://image.tmdb.org/t/p/original/{backdropPath}";
-        set => backdropPath = value;
-    }
+    public string? PosterPath { get; set; }
+    public string? BackdropPath { get; set; }
 }
