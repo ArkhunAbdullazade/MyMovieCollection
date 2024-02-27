@@ -69,22 +69,6 @@ namespace MyMovieCollection.Presentation.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UsersMovies",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    MovieId = table.Column<int>(type: "int", nullable: false),
-                    Review = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Rating = table.Column<float>(type: "real", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UsersMovies", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -190,6 +174,27 @@ namespace MyMovieCollection.Presentation.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "UsersMovies",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    MovieId = table.Column<int>(type: "int", nullable: false),
+                    Review = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Rating = table.Column<float>(type: "real", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UsersMovies", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UsersMovies_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -228,6 +233,11 @@ namespace MyMovieCollection.Presentation.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UsersMovies_UserId",
+                table: "UsersMovies",
+                column: "UserId");
         }
 
         /// <inheritdoc />

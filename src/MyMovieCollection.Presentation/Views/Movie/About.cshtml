@@ -1,8 +1,8 @@
 @model Movie
 
 @{
-    var allReviews = ViewData["Reviews"] as IEnumerable<UserMovie>;
-    bool isWatched = (ViewData["IsWatched"] as string ?? "false") == "true";
+    var allReviews = ViewData["Reviews"] as IEnumerable<UserMovie> ?? Enumerable.Empty<UserMovie>();
+    var currUserReview = ViewData["currUserReview"] as UserMovie;
     
     int Id = Model.Id;
     string? Score = string.Empty;
@@ -12,16 +12,13 @@
 <style>
     h1 {
         text-align: center;
-    }
-
-    h1 {
         font-size: 60px;
     }
 
     .img-div > img {
         border-radius: 10px;
-        width: 272px;
-        height: 400px;
+        width: 318px;
+        height: 467px;
     }
 
     .backdrop-div {
@@ -30,7 +27,7 @@
         background-position: right bottom;
         background-size: cover;
         background-image: url(@Model.BackdropPath);
-        box-shadow: 0 0 20px 20px #2d3238 inset;
+        box-shadow: 0 0 15px 15px #2d3238 inset;
         position: sticky;
         margin: auto;
     }
@@ -56,9 +53,6 @@
     .description {
         font-size: 18px;
     }
-    .description::before {
-        content: 'Description: ';
-    }
     .cont {
         display: inline;
         align-items: center;
@@ -66,11 +60,13 @@
     }
     .info-div {
         padding-left: 10px;
+        transform: translateY(-3%);
     }
     .info {
         margin: auto;
         display: flex;
-        width: 900px;
+        width: 910px;
+        transform: translateY(-8%);
     }
     .score {
         display: inline-block;
@@ -114,8 +110,21 @@
         background-color: #2d3238;
     }
 
-    .modal-body  {
+    .modal-body {
         background-color: #2d3238;
+    }
+
+    .reviews {
+        margin-top: 15px;
+    }
+
+    .reviews > div {
+        align-items: center;
+    }
+
+    .card-body {
+        align-items: center;
+        margin: auto;
     }
 </style>
 
@@ -138,53 +147,96 @@
             <br>
             <p class="description">@Model.Overview</p>
 
-            @if(isWatched) {
-                <a class="btn btn-warning" role="button" asp-area="" asp-controller="Movie" asp-action="Review" asp-route-movieId="@Model.Id">My Review</a>
+            @if(currUserReview is not null) {
+                <button onclick="changeReviewModalData('@currUserReview.Review', '@(currUserReview.Rating is not null ? MathF.Round((float)currUserReview.Rating!, 1) : "N/R")', '@currUserReview.User?.UserName')" 
+                        type="button" 
+                        class="btn btn-warning" 
+                        data-toggle="modal" 
+                        data-target="#reviewModal">My Review</button>
             }
             else {
-                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#reviewModal">Add to Watched</button>
+                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#addReviewModal">Add to Watched</button>
             }
-
-            <!-- Create Review Modal -->
-            <div class="modal fade" id="reviewModal" role="dialog">
-                <div class="modal-dialog modal-sm">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title">Review this Movie</h4>
+            <div class="reviews">
+                @foreach (var review in allReviews.Take(4))
+                {
+                    <div class="card bg-dark mb-3" style="max-width: 9rem;">
+                        <div class="card-body">
+                            <h5><a class="link-warning" asp-area="" asp-controller="User" asp-action="Profile" asp-route-itemid="@review.UserId">@review.User?.UserName</a></h5>
+                            <button onclick="changeReviewModalData('@review.Review', '@(review.Rating is not null ? MathF.Round((float)currUserReview?.Rating!, 1).ToString() : "N/R")', '@review.User?.UserName')" type="button" class="btn btn-warning" data-toggle="modal" data-target="#reviewModal">Read</button>
                         </div>
-                        <form method="post" asp-action="Add" asp-controller="Movie">
-                            <div class="modal-body">
-                                <input type="hidden" asp-for="@Id">
-                                <div class="form-group">
-                                    <label for="review-text" class="col-form-label">Review:</label>
-                                    <textarea asp-for="@Review" class="form-control" id="review-text"></textarea>
-                                </div>
-                                <br>
-                                <div class="form-group">
-                                    <select asp-for="@Score" class="form-control" id="rating" name="score">
-                                        <option value="">no rating</option>
-                                        <option value="1">✪ 1 stars</option>
-                                        <option value="2">✪ 2 stars</option>
-                                        <option value="3">✪ 3 stars</option>
-                                        <option value="4">✪ 4 stars</option>
-                                        <option value="5">✪ 5 stars</option>
-                                        <option value="6">✪ 6 stars</option>
-                                        <option value="7">✪ 7 stars</option>
-                                        <option value="8">✪ 8 stars</option>
-                                        <option value="9">✪ 9 stars</option>
-                                        <option value="10">✪ 10 stars</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-warning">Save changes</button>
-                            </div>
-                        </form>
                     </div>
-                </div>
+                }
             </div>
         </div>
     </div>
     
 </div>
+
+<!-- Create Review Modal -->
+<div class="modal fade" id="addReviewModal" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Review this Movie</h4>
+            </div>
+            <form method="post" asp-action="Add" asp-controller="Movie">
+                <div class="modal-body">
+                    <input type="hidden" asp-for="@Id">
+                    <div class="form-group">
+                        <label for="review-text" class="col-form-label">Review:</label>
+                        <textarea asp-for="@Review" class="form-control" id="review-text"></textarea>
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <select asp-for="@Score" class="form-control" id="rating" name="score">
+                            <option value="">no rating</option>
+                            <option value="1">✪ 1 stars</option>
+                            <option value="2">✪ 2 stars</option>
+                            <option value="3">✪ 3 stars</option>
+                            <option value="4">✪ 4 stars</option>
+                            <option value="5">✪ 5 stars</option>
+                            <option value="6">✪ 6 stars</option>
+                            <option value="7">✪ 7 stars</option>
+                            <option value="8">✪ 8 stars</option>
+                            <option value="9">✪ 9 stars</option>
+                            <option value="10">✪ 10 stars</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- User Review Modal -->
+<div class="modal fade" id="reviewModal" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="userName"></h4>
+            </div>
+            <div class="modal-body reviewModal">
+                <p id="reviewText"></p>
+                <div>
+                    <span class="score"><span id="scoreValue"></span></span>
+                    <span>---User VS Real---</span>
+                    @if (@Model.Score is null) { <span class="score"><span>N/R</span></span> }
+                    else { <span class="score"><span>@(MathF.Round((float)Model.Score, 1))</span></span> }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function changeReviewModalData(review, score, userName) {
+        document.getElementById('userName').innerText = userName;
+        document.getElementById('reviewText').innerText = review;
+        document.getElementById('scoreValue').innerText = score !== 'N/R' ? score + '.0' : score;
+    }
+</script>

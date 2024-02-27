@@ -12,8 +12,6 @@ public class Movie
 
     [JsonPropertyName("original_language")]
     public string? OriginalLanguage { get; set; }
-    [JsonPropertyName("genre_ids")]
-    public List<int>? Genres { get; set; }
     [JsonPropertyName("vote_average")]
     public float? Score { get; set; }
     [JsonPropertyName("release_date")]

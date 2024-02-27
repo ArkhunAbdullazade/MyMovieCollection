@@ -1,9 +1,6 @@
-using System.Net;
-using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using MyMovieCollection.Core.Models;
 using MyMovieCollection.Core.Repositories;
 using MyMovieCollectionю.Presentation.Dtos;
@@ -43,10 +40,14 @@ public class MovieController : Controller
         if (movie is null) return NotFound($"Movie with id {id} doesn't exist");
 
         var userId = this.userManager.GetUserId(base.User);
-        var allUserMovies = await this.userMovieRepository.GetAllByUserIdAsync(userId!);
+        var allUserMovies = await this.userMovieRepository.GetAllByMovieIdAsync(id);
         
-        base.ViewData["Reviews"] = allUserMovies;
-        base.ViewData["IsWatched"] = allUserMovies.Any(um => um.MovieId == id) ? "true" : "false";
+        foreach (var e in allUserMovies) { e.User = await userManager.FindByIdAsync(e.UserId!); }
+
+        var currUserReview = allUserMovies.FirstOrDefault(um => um.UserId == userId);
+
+        ViewData["currUserReview"] = currUserReview;
+        ViewData["Reviews"] = allUserMovies;
 
         return View(movie);
     }

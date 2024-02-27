@@ -12,7 +12,7 @@ using MyMovieCollection.Infrastructure.Data;
 namespace MyMovieCollection.Presentation.Migrations
 {
     [DbContext(typeof(MyMovieCollectionDbContext))]
-    [Migration("20240224140049_Init")]
+    [Migration("20240227140719_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -272,9 +272,11 @@ namespace MyMovieCollection.Presentation.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("UsersMovies");
                 });
@@ -328,6 +330,15 @@ namespace MyMovieCollection.Presentation.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MyMovieCollection.Core.Models.UserMovie", b =>
+                {
+                    b.HasOne("MyMovieCollection.Core.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

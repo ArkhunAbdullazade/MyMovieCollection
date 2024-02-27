@@ -4,5 +4,4 @@ namespace MyMovieCollection.Core.Models;
 
 public class User : IdentityUser
 {
-    
 }
