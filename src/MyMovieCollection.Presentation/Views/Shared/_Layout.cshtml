@@ -1,7 +1,8 @@
 ﻿@using System.Security.Claims;
 
 @{
-    var isAuthenticated = base.User.Identity?.IsAuthenticated ?? false;
+    bool isAuthenticated = base.User.Identity?.IsAuthenticated ?? false;
+    bool isAdmin = base.User.IsInRole("Admin");
     var userName = User.FindFirst(ClaimTypes.Name)?.Value;
 }
 
@@ -45,6 +46,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Movie" asp-action="Movies">Movies</a>
                             </li>
+                            if (isAdmin) {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="User" asp-action="GetAll">Users</a>
+                                </li>
+                            }
                         }
                         else {
                             <li class="nav-item">

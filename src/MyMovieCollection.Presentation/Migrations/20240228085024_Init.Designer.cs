@@ -12,7 +12,7 @@ using MyMovieCollection.Infrastructure.Data;
 namespace MyMovieCollection.Presentation.Migrations
 {
     [DbContext(typeof(MyMovieCollectionDbContext))]
-    [Migration("20240227140719_Init")]
+    [Migration("20240228085024_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -230,6 +230,9 @@ namespace MyMovieCollection.Presentation.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("ProfilePicture")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");

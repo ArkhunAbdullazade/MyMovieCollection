@@ -1,3 +1,4 @@
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -25,18 +26,22 @@ public class MovieController : Controller
     [HttpGet] 
     [ActionName("Movies")]
     [Route("/Movies")]
-    public async Task<IActionResult> GetAll(string? search = null)
+    public async Task<IActionResult> GetAll(int page = 1, string? search = null)
     {
-        IEnumerable<Movie> movies;
+        MoviesResponse moviesResponse;
 
-        if (string.IsNullOrWhiteSpace(search)) movies = await movieRepository.GetAllBySearchAsync();
-        else movies = await movieRepository.GetAllBySearchAsync(1, search);
-        return View(movies);
+        if (string.IsNullOrWhiteSpace(search)) moviesResponse = await movieRepository.GetAllBySearchAsync(page);
+        else moviesResponse = await movieRepository.GetAllBySearchAsync(page, search);
+        
+        moviesResponse.Search = search;
+        
+        return View(moviesResponse);
     }
 
     [HttpGet]
     [ActionName("About")]
     [Route("/Movie")]
+    [Authorize]
     public async Task<IActionResult> GetById(int id)
     {
         var movie = await movieRepository.GetByIdAsync(id);
@@ -58,6 +63,7 @@ public class MovieController : Controller
 
     [HttpGet]
     [ActionName("Review")]
+    [Authorize]
     public async Task<IActionResult> GetReviewById(int movieId, string? userId = null)
     {        
         userId ??= this.userManager.GetUserId(User);
@@ -75,10 +81,6 @@ public class MovieController : Controller
     public async Task<IActionResult> Add([FromForm] UserMovieDto userMovieDto)
     {
         var userId = this.userManager.GetUserId(base.User);
-        var allUserMovies = await this.userMovieRepository.GetAllByUserIdAsync(userId!);
-        
-        if (allUserMovies.Any(um => um.MovieId == userMovieDto.Id)) return BadRequest("This Movie is already in your list");
-
         var newUserMovie = new UserMovie {
             UserId = userId,
             MovieId = userMovieDto.Id,
@@ -86,6 +88,10 @@ public class MovieController : Controller
             Review = userMovieDto.Review,
         };
         
+        var allUserMovies = await this.userMovieRepository.GetAllByUserIdAsync(userId!);
+        
+        if (allUserMovies.Any(um => um.MovieId == newUserMovie.Id)) return BadRequest("This Movie is already in your list");
+
         await this.userMovieRepository.CreateAsync(newUserMovie);
 
         return RedirectToAction("About", new { id = userMovieDto.Id });

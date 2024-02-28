@@ -3,6 +3,7 @@
 @{
     var allReviews = ViewData["Reviews"] as IEnumerable<UserMovie> ?? Enumerable.Empty<UserMovie>();
     var currUserReview = ViewData["currUserReview"] as UserMovie;
+    var isAuthenticated = base.User.Identity?.IsAuthenticated ?? false;
     
     int Id = Model.Id;
     string? Score = string.Empty;
@@ -73,8 +74,10 @@
         line-height: 0px;
         border-radius: 50%;
         border: 2px solid;
-        font-size: 32px;
+        font-size: 1.8em;
+        text-align: center;
         border-color: white;
+        width: 80px;
     }
 
     .score span {
@@ -146,28 +149,35 @@
             else { <span class="score"><span>@(MathF.Round((float)Model.Score, 1))</span></span> }
             <br>
             <p class="description">@Model.Overview</p>
-
-            @if(currUserReview is not null) {
-                <button onclick="changeReviewModalData('@currUserReview.Review', '@(currUserReview.Rating is not null ? MathF.Round((float)currUserReview.Rating!, 1) : "N/R")', '@currUserReview.User?.UserName')" 
-                        type="button" 
-                        class="btn btn-warning" 
-                        data-toggle="modal" 
-                        data-target="#reviewModal">My Review</button>
-            }
-            else {
-                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#addReviewModal">Add to Watched</button>
-            }
-            <div class="reviews">
-                @foreach (var review in allReviews.Take(4))
-                {
-                    <div class="card bg-dark mb-3" style="max-width: 10rem;">
-                        <div class="card-body">
-                            <h5><a class="link-warning" asp-area="" asp-controller="User" asp-action="Profile" asp-route-itemid="@review.UserId">@review.User?.UserName</a></h5>
-                            <button onclick="changeReviewModalData('@review.Review', '@(review.Rating is not null ? MathF.Round((float)currUserReview?.Rating!, 1).ToString() : "N/R")', '@review.User?.UserName')" type="button" class="btn btn-warning" data-toggle="modal" data-target="#reviewModal">Read</button>
-                        </div>
-                    </div>
+            @if (isAuthenticated) {
+                @if(currUserReview is not null) {
+                    <button onclick="changeReviewModalData('@currUserReview.Review', '@(currUserReview.Rating is not null ? MathF.Round((float)currUserReview.Rating!, 1) : "N/R")', '@currUserReview.User?.UserName')" 
+                            type="button" 
+                            class="btn btn-warning" 
+                            data-toggle="modal" 
+                            data-target="#reviewModal">My Review</button>
                 }
-            </div>
+                else {
+                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#addReviewModal">Add to Watched</button>
+                }
+                <div class="reviews">
+                    @foreach (var review in allReviews)
+                    {
+                        <div class="card bg-dark mb-3" style="max-width: 10rem;">
+                            <div class="card-body">
+                                @if (review.UserId != currUserReview?.UserId) {
+                                    <h5>@review.User?.UserName</h5>
+                                }
+                                else {
+                                    <h5><a class="link-warning" asp-area="" asp-controller="User" asp-action="Profile">@review.User?.UserName</a></h5>
+                                }
+                                <button onclick="changeReviewModalData('@review.Review', '@(review.Rating is not null ? MathF.Round((float)currUserReview?.Rating!, 1).ToString() : "N/R")', '@review.User?.UserName')" type="button" class="btn btn-warning" data-toggle="modal" data-target="#reviewModal">Read</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            
         </div>
     </div>
     
@@ -224,7 +234,7 @@
                 <p id="reviewText"></p>
                 <div>
                     <span class="score"><span id="scoreValue"></span></span>
-                    <span>---User VS Real---</span>
+                    <span>-User VS Real-</span>
                     @if (@Model.Score is null) { <span class="score"><span>N/R</span></span> }
                     else { <span class="score"><span>@(MathF.Round((float)Model.Score, 1))</span></span> }
                 </div>

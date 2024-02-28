@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyMovieCollection.Core.Models;
 using MyMovieCollection.Core.Repositories;
-using System.Linq;
+using MyMovieCollection.Core.Services;
+using MyMovieCollectionю.Presentation.Dtos;
 
 namespace MyMovieCollection.Presentation.Controllers;
 
@@ -14,12 +15,16 @@ public class UserController : Controller
     private readonly IUserMovieRepository userMovieRepository;
     private readonly IMovieRepository movieRepository;
     private readonly UserManager<User> userManager;
+    private readonly SignInManager<User> signInManager;
+    private readonly UserService userService;
 
-    public UserController(IUserMovieRepository userMovieRepository, IMovieRepository movieRepository,UserManager<User> userManager)
+    public UserController(IUserMovieRepository userMovieRepository, IMovieRepository movieRepository,UserManager<User> userManager, SignInManager<User> signInManager, UserService userService)
     {
         this.userMovieRepository = userMovieRepository;
         this.movieRepository = movieRepository;
         this.userManager = userManager;
+        this.signInManager = signInManager;
+        this.userService = userService;
     }
 
     [HttpGet]
@@ -27,6 +32,88 @@ public class UserController : Controller
     {
         var user = await this.userManager.GetUserAsync(User);
         return base.View(user);
+    }
+
+    [HttpGet]
+    [Route("/[controller]")]
+    public async Task<IActionResult> GetUserById(string id) 
+    {
+        User? user = null;
+        try
+        {
+            user = await userService.GetUserByIdAsync(id);
+        }
+        catch (Exception)
+        {
+            return NotFound("User is Not Found");
+        }
+
+        return base.View(user);
+    }
+
+    [HttpGet]
+    [Route("/Users")]
+    public IActionResult GetAll() 
+    {
+        var users = this.userManager.Users.ToList();
+
+        return base.View(model: users);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        System.Console.WriteLine(id);
+        var userToDelete = await this.userManager.FindByIdAsync(id);
+
+        await this.userManager.DeleteAsync(userToDelete!);
+
+        return RedirectToAction("GetAll");
+    }
+
+    [HttpPut]
+    [Consumes("application/json")]
+    public async Task<IActionResult> Update([FromBody]UserDto userDto) 
+    {
+        var user = await this.userManager.GetUserAsync(User);
+        user!.UserName = userDto.UserName;
+        user.Email = userDto.Email;
+        user.PhoneNumber = userDto.PhoneNumber;
+
+        var result = await this.userManager.UpdateAsync(user);;
+
+        if(!result.Succeeded) {
+            foreach (var error in result.Errors) 
+            {
+                base.ModelState.AddModelError(error.Code, error.Description);
+            }
+
+            return base.View("Profile");
+        }
+
+        await this.signInManager.RefreshSignInAsync(user);
+
+        return RedirectToAction("Profile");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UploadProfilePicture(IFormFile file) {
+        var user = await this.userManager.GetUserAsync(User);
+        var userName = await this.userManager.GetUserNameAsync(user!);
+        var fileExtension = new FileInfo(file.FileName).Extension;
+        var filename = $"{userName}{fileExtension}";
+        var destinationPath = $"wwwroot/ProfilePictures/{filename}";
+
+        System.IO.File.Delete(destinationPath);
+        using var fileStream = System.IO.File.Create(destinationPath);
+        await file.CopyToAsync(fileStream);
+
+        user!.ProfilePicture = $"/ProfilePictures/{filename}";
+
+        await this.userManager.UpdateAsync(user);
+
+        return base.RedirectToAction("Profile");
     }
 
     [HttpGet]

@@ -1,8 +1,18 @@
+using System.Text.Json.Serialization;
+
 namespace MyMovieCollection.Core.Models;
 public class MoviesResponse
 {
-    public int page { get; set; }
-    public IEnumerable<Movie>? results { get; set; }
-    public int total_pages { get; set; }
-    public int total_results { get; set; }
+    [JsonPropertyName("page")]
+    public int Page { get; set; }
+
+    [JsonPropertyName("results")]
+    public IEnumerable<Movie>? Results { get; set; }
+
+    [JsonPropertyName("total_pages")]
+    public int TotalPages { get; set; }
+
+    [JsonPropertyName("total_results")]
+    public int TotalResults { get; set; }
+    public string? Search { get; set; }
 }

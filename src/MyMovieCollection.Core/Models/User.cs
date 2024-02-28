@@ -4,4 +4,5 @@ namespace MyMovieCollection.Core.Models;
 
 public class User : IdentityUser
 {
+    public string? ProfilePicture { get; set; }
 }

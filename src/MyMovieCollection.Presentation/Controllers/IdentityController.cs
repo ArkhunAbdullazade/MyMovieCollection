@@ -14,15 +14,14 @@ namespace MyMovieCollection.Presentation.Controllers;
 [Route("/[action]")]
 public class IdentityController : Controller
 {
-    // private readonly IUserRepository repository;
     private readonly UserManager<User> userManager;
     private readonly SignInManager<User> signInManager;
-
-    public IdentityController(UserManager<User> userManager, SignInManager<User> signInManager)
+    private readonly RoleManager<IdentityRole> roleManager;
+    public IdentityController(UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager)
     {
-        // this.repository = repository;
         this.userManager = userManager;
         this.signInManager = signInManager;
+        this.roleManager = roleManager;
     }
 
     [HttpGet]
@@ -33,11 +32,17 @@ public class IdentityController : Controller
     {
         var user = await this.userManager.FindByNameAsync(userDto.UserName!);
 
-        if (user is null) return BadRequest("Incorrect Login!");
+        if (user is null) {
+            base.ModelState.AddModelError("Bad Request", "Incorrect Login!");
+            return base.View();
+        }
 
         var result = await this.signInManager.PasswordSignInAsync(user, userDto.Password!, true, true);
 
-        if (!result.Succeeded) return BadRequest("Incorrect Password!");
+        if (!result.Succeeded) {
+            base.ModelState.AddModelError("Bad Request", "Incorrect Password!");
+            return base.View();
+        }
 
         return string.IsNullOrWhiteSpace(userDto.ReturnUrl)
             ? base.RedirectToAction(controllerName: "Home", actionName: "Index")
@@ -56,6 +61,7 @@ public class IdentityController : Controller
             UserName = userDto.UserName,
             PhoneNumber = userDto.PhoneNumber,
         };
+
         var result = await this.userManager.CreateAsync(newUser, userDto.Password!);
 
         if(!result.Succeeded) {
@@ -63,9 +69,13 @@ public class IdentityController : Controller
             {
                 base.ModelState.AddModelError(error.Code, error.Description);
             }
-
+            
             return base.View("Signup");
         }
+
+        // var role = new IdentityRole {Name = "Admin"};
+        // await roleManager.CreateAsync(role);
+        // await userManager.AddToRoleAsync(newUser, role.Name);
 
         return base.RedirectToAction("Login");
     }

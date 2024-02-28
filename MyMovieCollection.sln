@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMovieCollection.Infrastru
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMovieCollection.Presentation", "src\MyMovieCollection.Presentation\MyMovieCollection.Presentation.csproj", "{3528A691-3AE1-407E-9AE1-B84089DC88C5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMovieCollection.Tests", "src\MyMovieCollection.Tests\MyMovieCollection.Tests.csproj", "{B18E82B7-4B59-43F5-8E31-3F4EA8D96806}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,10 +34,15 @@ Global
 		{3528A691-3AE1-407E-9AE1-B84089DC88C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3528A691-3AE1-407E-9AE1-B84089DC88C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3528A691-3AE1-407E-9AE1-B84089DC88C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B18E82B7-4B59-43F5-8E31-3F4EA8D96806}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B18E82B7-4B59-43F5-8E31-3F4EA8D96806}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B18E82B7-4B59-43F5-8E31-3F4EA8D96806}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B18E82B7-4B59-43F5-8E31-3F4EA8D96806}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4834CC47-C782-452C-8DFA-537EB92CFF18} = {7023AD0F-F575-45C5-9269-A2716D0E5011}
 		{4EABC242-2D9A-4E78-BEEA-33327F0FF806} = {7023AD0F-F575-45C5-9269-A2716D0E5011}
 		{3528A691-3AE1-407E-9AE1-B84089DC88C5} = {7023AD0F-F575-45C5-9269-A2716D0E5011}
+		{B18E82B7-4B59-43F5-8E31-3F4EA8D96806} = {7023AD0F-F575-45C5-9269-A2716D0E5011}
 	EndGlobalSection
 EndGlobal

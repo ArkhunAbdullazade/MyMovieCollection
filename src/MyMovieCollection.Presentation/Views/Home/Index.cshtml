@@ -1,7 +1,71 @@
-﻿@{
+﻿@model IEnumerable<Movie>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4"></h1>
+<style>
+    h1,
+    h2,
+    h3 {
+        text-align: center;
+    }
+
+    img {
+        border-radius: 10px;
+        width: 14.2em;
+        height: 21em;
+    }
+
+    span,
+    h1,
+    h2,
+    h3 {
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    }
+
+    .title {
+        font-size: 1em;
+    }
+
+    .list,
+    .list > div {
+        flex-direction: column;
+        border: 2px solid dimgray;
+        border-radius: 15px;
+}
+
+    .list {
+        display: block;
+        padding: 10px;
+        padding-bottom: 25px;
+    }
+    .list > div {
+        flex-direction: column;
+        display: inline-flex;
+        width: 240px;
+        height: 350px;
+        margin: 5px;
+        margin-bottom: 10px;
+
+    }
+    .list > div > div{
+        margin: 5px;
+        text-align: center;
+    }
+</style>
+
+<h2>Last Logged Movies</h2>
+<div class="list mb-4">
+    @foreach (var movie in Model.Take(5))
+    {
+        <div>
+            <div class="img-div">
+                <a asp-action="About" asp-controller="Movie" asp-route-id="@movie.Id"><img src="@(movie.PosterPath ?? "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Black.png/220px-Black.png")" alt="movie poster" /></a>
+            </div>
+            <div>
+                <span class="title"><b>@(movie.Title ?? "Unknown")</b></span>
+            </div>
+        </div>
+    }
 </div>
