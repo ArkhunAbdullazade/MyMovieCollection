@@ -1,9 +1,9 @@
 using System.Reflection;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyMovieCollection.Core.Models;
 using MyMovieCollection.Core.Repositories;
+using MyMovieCollection.Core.Services;
 using MyMovieCollection.Infrastructure.Data;
 using MyMovieCollection.Infrastructure.Repositories;
 using MyMovieCollection.Presentation.Middlewares;
@@ -32,6 +32,7 @@ builder.Services.AddTransient<LogMiddleware>();
 builder.Services.AddScoped<IUserMovieRepository, UserMovieSqlRepository>();
 builder.Services.AddScoped<IMovieRepository, MovieSqlRepository>();
 builder.Services.AddScoped<ILogRepository, LogSqlRepository>();
+// builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 

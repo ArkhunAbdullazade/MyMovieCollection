@@ -16,15 +16,15 @@ public class UserController : Controller
     private readonly IMovieRepository movieRepository;
     private readonly UserManager<User> userManager;
     private readonly SignInManager<User> signInManager;
-    private readonly UserService userService;
+    // private readonly UserService userService;
 
-    public UserController(IUserMovieRepository userMovieRepository, IMovieRepository movieRepository,UserManager<User> userManager, SignInManager<User> signInManager, UserService userService)
+    public UserController(IUserMovieRepository userMovieRepository, IMovieRepository movieRepository,UserManager<User> userManager, SignInManager<User> signInManager)
     {
         this.userMovieRepository = userMovieRepository;
         this.movieRepository = movieRepository;
         this.userManager = userManager;
         this.signInManager = signInManager;
-        this.userService = userService;
+        // this.userService = userService;
     }
 
     [HttpGet]
@@ -34,22 +34,22 @@ public class UserController : Controller
         return base.View(user);
     }
 
-    [HttpGet]
-    [Route("/[controller]")]
-    public async Task<IActionResult> GetUserById(string id) 
-    {
-        User? user = null;
-        try
-        {
-            user = await userService.GetUserByIdAsync(id);
-        }
-        catch (Exception)
-        {
-            return NotFound("User is Not Found");
-        }
+    // [HttpGet]
+    // [Route("/[controller]")]
+    // public async Task<IActionResult> GetUserById(string id) 
+    // {
+    //     User? user = null;
+    //     try
+    //     {
+    //         user = await userService.GetUserByIdAsync(id);
+    //     }
+    //     catch (Exception)
+    //     {
+    //         return NotFound("User is Not Found");
+    //     }
 
-        return base.View(user);
-    }
+    //     return base.View(user);
+    // }
 
     [HttpGet]
     [Route("/Users")]
