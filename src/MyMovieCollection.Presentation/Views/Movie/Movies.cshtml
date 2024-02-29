@@ -95,7 +95,7 @@
                         i <= (Model.Page < 4 ? (Model.TotalPages <= 5 ? Model.TotalPages : 5) : (Model.Page <= Model.TotalPages - 3  ? Model.Page + 2 : Model.TotalPages)); i++)  
                 {
                     <li class="page-item @(i == Model.Page ? " active" : "")">  
-                        <a class="page-link" href="?page=@i&search=@Model.Search">@i</a>  
+                        <a class="page-link" href="?page=@i&search=@Model.Search">@i</a>
                     </li>   
                 }  
                 <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">

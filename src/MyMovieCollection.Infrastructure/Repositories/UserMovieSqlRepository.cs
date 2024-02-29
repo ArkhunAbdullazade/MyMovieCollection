@@ -34,5 +34,24 @@ namespace MyMovieCollection.Infrastructure.Repositories
             await this.dbContext.SaveChangesAsync();
             return true;
         }
+        
+        public async Task<bool> DeleteForUserByMovieIdAsync(string? userId, int movieId)
+        {
+            var umToDelete = await this.GetByUserAndMovieIdAsync(userId, movieId);
+            this.dbContext.UsersMovies.Remove(umToDelete!);
+            await this.dbContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<int> DeleteAllForUserAsync(string? userId)
+        {
+            var allUmsToDelete = await this.GetAllByUserIdAsync(userId);
+            foreach (var um in allUmsToDelete)
+            {
+                this.dbContext.UsersMovies.Remove(um);
+            }
+            await this.dbContext.SaveChangesAsync();
+            return allUmsToDelete.Count();
+        }
     }
 }

@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "My Movies";
+
+    string? currUserId = ViewData["CurrUserId"] as string;
 }
 
 <style>
@@ -59,27 +61,30 @@
     <div class="list">
         @foreach (var user in Model)
         {
-            <div>
-                <div class="img-div">
-                    @if (string.IsNullOrWhiteSpace(user.ProfilePicture)) {
-                        <img class="img-account-profile rounded-circle mb-2" src="~/ProfilePictures/DefaultProfilePicture.png" alt="">  
-                    }
-                    else {
-                        <img class="img-account-profile rounded-circle mb-2" src="@user.ProfilePicture" alt="">
-                    }                
-                </div>
+            @if(currUserId != user.Id) {
                 <div>
-                    <span><b>@(user.UserName ?? "Unknown")</b></span>
-                    <br>
-                    <span><b>@(user.Email ?? "Unknown")</b></span>
-                    <br>
-                    <span><b>@(user.PhoneNumber ?? "Unknown")</b></span>
-                    <br>
-                    <form method="post" asp-action="Delete" asp-controller="User" asp-route-id="@user.Id">
-                        <button class="btn btn-danger mt-2" type="submit" onclick="deleteUser(@user.Id)">DELETE</button>
-                    </form>
+                    <div class="img-div">
+                        @if (string.IsNullOrWhiteSpace(user.ProfilePicture)) {
+                            <img class="img-account-profile rounded-circle mb-2" src="~/ProfilePictures/DefaultProfilePicture.png" alt="">  
+                        }
+                        else {
+                            <img class="img-account-profile rounded-circle mb-2" src="@user.ProfilePicture" alt="">
+                        }                
+                    </div>
+                    <div>
+                        <span><b>@(user.UserName ?? "Unknown")</b></span>
+                        <br>
+                        <span><b>@(user.Email ?? "Unknown")</b></span>
+                        <br>
+                        <span><b>@(user.PhoneNumber ?? "Unknown")</b></span>
+                        <br>
+                        <form method="post" asp-action="Delete" asp-controller="User" asp-route-id="@user.Id">
+                            <button class="btn btn-danger mt-2" type="submit" onclick="deleteUser(@user.Id)">DELETE</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            }
+            
         }
     </div>
 }
@@ -89,13 +94,14 @@ else {
 
 
 <script>
-    async function deleteUser(id)
+    async function deleteUser(userId)
     {
         event.preventDefault();
 
-        await fetch('/User/Delete' + id,
+        await fetch('/User/Delete' + userId,
             {
-                method: "DELETE"
+                method: "DELETE",
+                headers: {"Content-Type":"application/json"}
             })
                 .then(data => {
                     window.location.href = '/Users';

@@ -56,6 +56,8 @@ public class UserController : Controller
     public IActionResult GetAll() 
     {
         var users = this.userManager.Users.ToList();
+        
+        ViewData["CurrUserId"] = this.userManager.GetUserId(base.User);
 
         return base.View(model: users);
     }
@@ -64,9 +66,9 @@ public class UserController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(string id)
     {
-        System.Console.WriteLine(id);
         var userToDelete = await this.userManager.FindByIdAsync(id);
 
+        await this.userMovieRepository.DeleteAllForUserAsync(id);
         await this.userManager.DeleteAsync(userToDelete!);
 
         return RedirectToAction("GetAll");
@@ -74,12 +76,17 @@ public class UserController : Controller
 
     [HttpPut]
     [Consumes("application/json")]
-    public async Task<IActionResult> Update([FromBody]UserDto userDto) 
+    public async Task<IActionResult> Update([FromBody]UserUpdateDto userUpdateDto) 
     {
+        if (!ModelState.IsValid)
+        {
+            return View("Profile");
+        }
+        
         var user = await this.userManager.GetUserAsync(User);
-        user!.UserName = userDto.UserName;
-        user.Email = userDto.Email;
-        user.PhoneNumber = userDto.PhoneNumber;
+        user!.UserName = userUpdateDto.UserName;
+        user.Email = userUpdateDto.Email;
+        user.PhoneNumber = userUpdateDto.PhoneNumber;
 
         var result = await this.userManager.UpdateAsync(user);;
 

@@ -21,7 +21,7 @@ public class MovieSqlRepository : IMovieRepository
     {
         SearchContainer<SearchMovie> result = string.IsNullOrWhiteSpace(search)
                                             ? await tmdbClient.DiscoverMoviesAsync().OrderBy(DiscoverMovieSortBy.PopularityDesc).Query(page)
-                                            : await tmdbClient.SearchMovieAsync(search, page);
+                                            : await tmdbClient.SearchMovieAsync(search, page, true);
 
         MoviesResponse moviesResponse = new MoviesResponse {
             Results = Enumerable.Empty<Movie>(),
@@ -29,7 +29,7 @@ public class MovieSqlRepository : IMovieRepository
             TotalPages = result.TotalPages,
             TotalResults = result.TotalResults,
         };
-
+        
         foreach (var movie in result.Results)
         {
             moviesResponse.Results = moviesResponse.Results.Append(new Movie
@@ -39,14 +39,13 @@ public class MovieSqlRepository : IMovieRepository
                 Overview = movie.Overview,
                 OriginalTitle = movie.OriginalTitle,
                 OriginalLanguage = movie.OriginalLanguage,
-                Score = (float)movie.VoteAverage,
-                ReleaseDate = ((DateTime)movie.ReleaseDate!).ToString("dd/MM/yyyy"),
+                Score = (float?)movie.VoteAverage,
+                ReleaseDate = movie.ReleaseDate is not null ? ((DateTime)movie.ReleaseDate).ToString("dd/MM/yyyy") : null,
                 Adult = movie.Adult,
                 PosterPath = movie.PosterPath is not null ? $"https://image.tmdb.org/t/p/original/{movie.PosterPath}" : null,
                 BackdropPath = movie.BackdropPath is not null ? $"https://image.tmdb.org/t/p/original/{movie.BackdropPath}" : null,
             });
         }
-
         
         return moviesResponse;
     }
