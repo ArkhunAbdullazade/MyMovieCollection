@@ -16,15 +16,15 @@ public class UserController : Controller
     private readonly IMovieRepository movieRepository;
     private readonly UserManager<User> userManager;
     private readonly SignInManager<User> signInManager;
-    // private readonly UserService userService;
+    private readonly IUserService userService;
 
-    public UserController(IUserMovieRepository userMovieRepository, IMovieRepository movieRepository,UserManager<User> userManager, SignInManager<User> signInManager)
+    public UserController(IUserMovieRepository userMovieRepository, IMovieRepository movieRepository, UserManager<User> userManager, SignInManager<User> signInManager, IUserService userService)
     {
         this.userMovieRepository = userMovieRepository;
         this.movieRepository = movieRepository;
         this.userManager = userManager;
         this.signInManager = signInManager;
-        // this.userService = userService;
+        this.userService = userService;
     }
 
     [HttpGet]
@@ -66,10 +66,14 @@ public class UserController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(string id)
     {
-        var userToDelete = await this.userManager.FindByIdAsync(id);
-
-        await this.userMovieRepository.DeleteAllForUserAsync(id);
-        await this.userManager.DeleteAsync(userToDelete!);
+        try
+        {
+            await this.userService.DeleteUserAsync(id);
+        }
+        catch (Exception)
+        {
+            return NotFound();
+        }
 
         return RedirectToAction("GetAll");
     }
@@ -107,18 +111,9 @@ public class UserController : Controller
     [HttpPost]
     public async Task<IActionResult> UploadProfilePicture(IFormFile file) {
         var user = await this.userManager.GetUserAsync(User);
-        var userName = await this.userManager.GetUserNameAsync(user!);
-        var fileExtension = new FileInfo(file.FileName).Extension;
-        var filename = $"{userName}{fileExtension}";
-        var destinationPath = $"wwwroot/ProfilePictures/{filename}";
 
-        System.IO.File.Delete(destinationPath);
-        using var fileStream = System.IO.File.Create(destinationPath);
+        using var fileStream = await userService.UploadProfilePicture(file.FileName, user!);
         await file.CopyToAsync(fileStream);
-
-        user!.ProfilePicture = $"/ProfilePictures/{filename}";
-
-        await this.userManager.UpdateAsync(user);
 
         return base.RedirectToAction("Profile");
     }

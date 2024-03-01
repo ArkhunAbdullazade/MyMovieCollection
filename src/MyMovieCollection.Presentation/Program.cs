@@ -32,7 +32,10 @@ builder.Services.AddTransient<LogMiddleware>();
 builder.Services.AddScoped<IUserMovieRepository, UserMovieSqlRepository>();
 builder.Services.AddScoped<IMovieRepository, MovieSqlRepository>();
 builder.Services.AddScoped<ILogRepository, LogSqlRepository>();
-// builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddScoped<IUserMovieService, UserMovieService>();
 
 var app = builder.Build();
 

@@ -1,9 +1,9 @@
-using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyMovieCollection.Core.Models;
 using MyMovieCollection.Core.Repositories;
+using MyMovieCollection.Core.Services;
 using MyMovieCollectionю.Presentation.Dtos;
 
 namespace MyMovieCollection.Presentation.Controllers;
@@ -14,13 +14,16 @@ public class MovieController : Controller
     private readonly IMovieRepository movieRepository;
     private readonly IUserMovieRepository userMovieRepository;
     private readonly UserManager<User> userManager;
+    private readonly IMovieService movieService;
+    private readonly IUserMovieService userMovieService;
 
-
-    public MovieController(IMovieRepository movieRepository, IUserMovieRepository userMovieRepository, UserManager<User> userManager)
+    public MovieController(IMovieRepository movieRepository, IUserMovieRepository userMovieRepository, UserManager<User> userManager, IMovieService movieService, IUserMovieService userMovieService)
     {
         this.movieRepository = movieRepository;
         this.userMovieRepository = userMovieRepository;
         this.userManager = userManager;
+        this.movieService = movieService;
+        this.userMovieService = userMovieService;
     }
 
     [HttpGet] 
@@ -28,12 +31,16 @@ public class MovieController : Controller
     [Route("/Movies")]
     public async Task<IActionResult> GetAll(int page = 1, string? search = null)
     {
-        MoviesResponse moviesResponse;
+        MoviesResponse? moviesResponse = null;
 
-        if (string.IsNullOrWhiteSpace(search)) moviesResponse = await movieRepository.GetAllBySearchAsync(page);
-        else moviesResponse = await movieRepository.GetAllBySearchAsync(page, search);
-        
-        moviesResponse.Search = search;
+        try
+        {
+            await this.movieService.GetAllAsync(page, search);
+        }
+        catch (Exception)
+        {
+            return BadRequest("There is no such page in the search you gave");
+        }
         
         return View(moviesResponse);
     }
@@ -44,18 +51,19 @@ public class MovieController : Controller
     [Authorize]
     public async Task<IActionResult> GetById(int id)
     {
-        var movie = await movieRepository.GetByIdAsync(id);
+        Movie? movie = null;
+        try
+        {
+            movie = await this.movieService.GetByIdAsync(id);
+        }
+        catch (Exception)
+        {
+            return NotFound($"Movie with id {id} doesn't exist");
+        }
 
-        if (movie is null) return NotFound($"Movie with id {id} doesn't exist");
+        var allUserMovies = await this.userMovieService.GetAllByMovieIdAsync(id);
 
-        var userId = this.userManager.GetUserId(base.User);
-        var allUserMovies = await this.userMovieRepository.GetAllByMovieIdAsync(id);
-        
-        foreach (var e in allUserMovies) { e.User = await userManager.FindByIdAsync(e.UserId!); }
-
-        var currUserReview = allUserMovies.FirstOrDefault(um => um.UserId == userId);
-
-        ViewData["currUserReview"] = currUserReview;
+        ViewData["currUserReview"] = allUserMovies.FirstOrDefault(um => um.UserId == userManager.GetUserId(User));
         ViewData["Reviews"] = allUserMovies;
 
         return View(movie);
@@ -80,19 +88,21 @@ public class MovieController : Controller
     [Authorize]
     public async Task<IActionResult> Add([FromForm] UserMovieDto userMovieDto)
     {
-        var userId = this.userManager.GetUserId(base.User);
         var newUserMovie = new UserMovie {
-            UserId = userId,
+            UserId = this.userManager.GetUserId(User),
             MovieId = userMovieDto.Id,
             Rating = userMovieDto.Score is not null ? float.Parse(userMovieDto.Score) : null,
             Review = userMovieDto.Review,
         };
         
-        var allUserMovies = await this.userMovieRepository.GetAllByUserIdAsync(userId!);
-        
-        if (allUserMovies.Any(um => um.MovieId == newUserMovie.Id)) return BadRequest("This Movie is already in your list");
-
-        await this.userMovieRepository.CreateAsync(newUserMovie);
+        try
+        {
+            await this.userMovieService.AddUserMovieAsync(newUserMovie);
+        }
+        catch (Exception)
+        {
+            return BadRequest("This Movie is already in your list");
+        }
 
         return RedirectToAction("About", new { id = userMovieDto.Id });
     }
