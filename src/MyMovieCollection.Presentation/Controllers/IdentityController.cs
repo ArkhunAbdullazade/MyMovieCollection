@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyMovieCollection.Core.Models;
 using MyMovieCollection.Core.Repositories;
+using MyMovieCollection.Core.Services;
 using MyMovieCollectionю.Presentation.Dtos;
 
 namespace MyMovieCollection.Presentation.Controllers;
@@ -14,68 +15,74 @@ namespace MyMovieCollection.Presentation.Controllers;
 [Route("/[action]")]
 public class IdentityController : Controller
 {
-    private readonly UserManager<User> userManager;
-    private readonly SignInManager<User> signInManager;
-    private readonly RoleManager<IdentityRole> roleManager;
-    public IdentityController(UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager)
+    private readonly IUserService userService;
+
+    public IdentityController(IUserService userService)
     {
-        this.userManager = userManager;
-        this.signInManager = signInManager;
-        this.roleManager = roleManager;
+        this.userService = userService;
     }
 
     [HttpGet]
     public IActionResult Login() => base.View();
 
     [HttpPost]
-    public async Task<IActionResult> Login([FromForm] UserDto userDto)
+    public async Task<IActionResult> Login([FromForm] LoginDto loginDto)
     {
-        var user = await this.userManager.FindByNameAsync(userDto.UserName!);
-
-        if (user is null) {
-            base.ModelState.AddModelError("Bad Request", "Incorrect Login!");
-            return base.View();
+        if (!ModelState.IsValid)
+        {
+            return View();
         }
 
-        var result = await this.signInManager.PasswordSignInAsync(user, userDto.Password!, true, true);
-
-        if (!result.Succeeded) {
-            base.ModelState.AddModelError("Bad Request", "Incorrect Password!");
-            return base.View();
+        try
+        {
+            await this.userService.LoginAsync(loginDto.UserName!, loginDto.Password!);
+        }
+        catch (ArgumentException exception)
+        {
+            base.ModelState.AddModelError(exception.ParamName!, exception.Message);
+            return View("Login");
+        }   
+        catch (NullReferenceException exception)
+        {
+            base.ModelState.AddModelError(exception.Source!, exception.Message);
+            return View("Login");
         }
 
-        return string.IsNullOrWhiteSpace(userDto.ReturnUrl)
+        return string.IsNullOrWhiteSpace(loginDto.ReturnUrl)
             ? base.RedirectToAction(controllerName: "Home", actionName: "Index")
-            : base.RedirectPermanent(userDto.ReturnUrl);
+            : base.RedirectPermanent(loginDto.ReturnUrl);
     }
 
     [HttpGet]
     public IActionResult Signup() => base.View();
 
     [HttpPost]
-    public async Task<IActionResult> Signup([FromForm] UserDto userDto)
+    public async Task<IActionResult> Signup([FromForm] SignupDto signupDto)
     {
-        var newUser = new User()
+        if (!ModelState.IsValid)
         {
-            Email = userDto.Email,
-            UserName = userDto.UserName,
-            PhoneNumber = userDto.PhoneNumber,
-        };
-
-        var result = await this.userManager.CreateAsync(newUser, userDto.Password!);
-
-        if(!result.Succeeded) {
-            foreach (var error in result.Errors) 
-            {
-                base.ModelState.AddModelError(error.Code, error.Description);
-            }
-            
-            return base.View("Signup");
+            return View();
         }
 
-        // var role = new IdentityRole {Name = "Admin"};
-        // await roleManager.CreateAsync(role);
-        // await userManager.AddToRoleAsync(newUser, role.Name);
+        var newUser = new User()
+        {
+            Email = signupDto.Email,
+            UserName = signupDto.UserName,
+            PhoneNumber = signupDto.PhoneNumber,
+        };
+        
+        try
+        {
+            await this.userService.SignupAsync(newUser, signupDto.Password!);
+        }
+        catch (AggregateException exceptions)
+        {
+            foreach (ArgumentException error in exceptions.Flatten().InnerExceptions) 
+            {
+                base.ModelState.AddModelError(error.ParamName!, error.Message);
+            }
+            return View("Signup");
+        }
 
         return base.RedirectToAction("Login");
     }
@@ -84,7 +91,8 @@ public class IdentityController : Controller
     [Authorize]
     public async Task<IActionResult> Logout()
     {
-        await this.signInManager.SignOutAsync();
+        await this.userService.SignOutAsync();
+
         return RedirectToAction(controllerName: "Home", actionName: "Main");
     }
 }

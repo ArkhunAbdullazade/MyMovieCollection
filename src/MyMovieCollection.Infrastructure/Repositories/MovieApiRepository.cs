@@ -7,12 +7,12 @@ using TMDbLib.Objects.Discover;
 using MyMovieCollection.Core.Enums;
 
 namespace MyMovieCollection.Infrastructure.Repositories;
-public class MovieSqlRepository : IMovieRepository
+public class MovieApiRepository : IMovieRepository
 {
     private const string apiKey = "90b3ceddfc15385f8acef82371c5db57";
     private TMDbClient tmdbClient;
 
-    public MovieSqlRepository() 
+    public MovieApiRepository() 
     {
         this.tmdbClient = new TMDbClient(apiKey);
     }
@@ -21,7 +21,7 @@ public class MovieSqlRepository : IMovieRepository
     {
         SearchContainer<SearchMovie> result = string.IsNullOrWhiteSpace(search)
                                             ? await tmdbClient.DiscoverMoviesAsync().OrderBy(DiscoverMovieSortBy.PopularityDesc).Query(page)
-                                            : await tmdbClient.SearchMovieAsync(search, page, true);
+                                            : await tmdbClient.SearchMovieAsync(search, page);
 
         MoviesResponse moviesResponse = new MoviesResponse {
             Results = Enumerable.Empty<Movie>(),

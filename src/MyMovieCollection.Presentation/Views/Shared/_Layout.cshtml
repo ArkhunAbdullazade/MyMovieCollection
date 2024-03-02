@@ -3,7 +3,7 @@
 @{
     bool isAuthenticated = base.User.Identity?.IsAuthenticated ?? false;
     bool isAdmin = base.User.IsInRole("Admin");
-    var userName = User.FindFirst(ClaimTypes.Name)?.Value;
+    string? userName = User.FindFirst(ClaimTypes.Name)?.Value;
 }
 
 <!DOCTYPE html>
@@ -18,7 +18,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
+        <nav class="main-nav navbar navbar-expand-lg navbar-dark bg-dark ">
             <div class="container-fluid">
                 <a class="navbar-brand mb-0 h1" asp-area="" asp-controller="Home" asp-action="Main">MyMovieCollection</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"

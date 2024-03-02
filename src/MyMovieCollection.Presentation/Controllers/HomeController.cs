@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyMovieCollection.Core.Models;
 using MyMovieCollection.Core.Repositories;
+using MyMovieCollection.Core.Services;
 using MyMovieCollection.Presentation.Models;
 
 namespace MyMovieCollection.Presentation.Controllers;
@@ -12,12 +13,12 @@ namespace MyMovieCollection.Presentation.Controllers;
 public class HomeController : Controller
 {
     private readonly IMovieRepository movieRepository;
-    private readonly IUserMovieRepository userMovieRepository;
+    private readonly IUserMovieService userMovieService;
     private readonly UserManager<User> userManager;
-    public HomeController(IMovieRepository movieRepository, IUserMovieRepository userMovieRepository, UserManager<User> userManager)
+    public HomeController(IMovieRepository movieRepository, IUserMovieService userMovieService, UserManager<User> userManager)
     {
         this.movieRepository = movieRepository;
-        this.userMovieRepository = userMovieRepository;
+        this.userMovieService = userMovieService;
         this.userManager = userManager;
     }
 
@@ -25,9 +26,7 @@ public class HomeController : Controller
     [Route("/Home")]
     public async Task<IActionResult> Index()
     {
-        var allUserMovies = await userMovieRepository.GetAllByUserIdAsync(this.userManager.GetUserId(User)!);
-        var movies = await Task.WhenAll(allUserMovies.Select(async um => await movieRepository.GetByIdAsync(um.MovieId)));
-
+        var movies = await this.userMovieService.GetAllMoviesByUserIdAsync(this.userManager.GetUserId(User)!);
         return View(movies);
     }
 

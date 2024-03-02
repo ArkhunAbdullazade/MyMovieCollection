@@ -35,7 +35,7 @@ public class MovieController : Controller
 
         try
         {
-            await this.movieService.GetAllAsync(page, search);
+            moviesResponse = await this.movieService.GetAllAsync(page, search);
         }
         catch (Exception)
         {

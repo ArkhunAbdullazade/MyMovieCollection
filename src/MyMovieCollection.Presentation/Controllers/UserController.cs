@@ -12,19 +12,15 @@ namespace MyMovieCollection.Presentation.Controllers;
 [Route("/[controller]/[action]")]
 public class UserController : Controller
 {
-    private readonly IUserMovieRepository userMovieRepository;
-    private readonly IMovieRepository movieRepository;
     private readonly UserManager<User> userManager;
-    private readonly SignInManager<User> signInManager;
     private readonly IUserService userService;
+    private readonly IUserMovieService userMovieService;
 
-    public UserController(IUserMovieRepository userMovieRepository, IMovieRepository movieRepository, UserManager<User> userManager, SignInManager<User> signInManager, IUserService userService)
+    public UserController(UserManager<User> userManager, IUserService userService, IUserMovieService userMovieService)
     {
-        this.userMovieRepository = userMovieRepository;
-        this.movieRepository = movieRepository;
         this.userManager = userManager;
-        this.signInManager = signInManager;
         this.userService = userService;
+        this.userMovieService = userMovieService;
     }
 
     [HttpGet]
@@ -92,18 +88,18 @@ public class UserController : Controller
         user.Email = userUpdateDto.Email;
         user.PhoneNumber = userUpdateDto.PhoneNumber;
 
-        var result = await this.userManager.UpdateAsync(user);;
-
-        if(!result.Succeeded) {
-            foreach (var error in result.Errors) 
-            {
-                base.ModelState.AddModelError(error.Code, error.Description);
-            }
-
-            return base.View("Profile");
+        try
+        {
+            await userService.UpdateUserAsync(user);
         }
-
-        await this.signInManager.RefreshSignInAsync(user);
+        catch (AggregateException exceptions)
+        {
+            foreach (ArgumentException error in exceptions.Flatten().InnerExceptions) 
+            {
+                base.ModelState.AddModelError(error.ParamName!, error.Message);
+            }
+            return View("Profile");
+        }
 
         return RedirectToAction("Profile");
     }
@@ -122,8 +118,7 @@ public class UserController : Controller
     [Route("/[controller]/Movies")]
     public async Task<IActionResult> UserMovies() 
     {
-        var ums = await this.userMovieRepository.GetAllByUserIdAsync(this.userManager.GetUserId(User)!);
-        var movies = await Task.WhenAll(ums.Select(async um => await movieRepository.GetByIdAsync(um.MovieId)));
+        var movies = await this.userMovieService.GetAllMoviesByUserIdAsync(this.userManager.GetUserId(User)!);
         return base.View(movies);
     }
 }

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using MyMovieCollection.Core.Models;
 using MyMovieCollection.Core.Repositories;
@@ -12,18 +8,21 @@ namespace MyMovieCollection.Core.Services
     {
         private readonly UserManager<User> userManager;
         private readonly IUserMovieRepository userMovieRepository;
-
-        public UserService(UserManager<User> userManager, IUserMovieRepository userMovieRepository)
+        private readonly SignInManager<User> signInManager;
+        private readonly RoleManager<IdentityRole> roleManager;
+        public UserService(IUserMovieRepository userMovieRepository, UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager)
         {
             this.userManager = userManager;
             this.userMovieRepository = userMovieRepository;
+            this.signInManager = signInManager;
+            this.roleManager = roleManager;
         }
 
         public async Task DeleteUserAsync(string id)
         {
             var userToDelete = await this.userManager.FindByIdAsync(id);  
 
-            if (userToDelete is null) throw new NullReferenceException();
+            if (userToDelete is null) throw new NullReferenceException("There is no user with this Id");
 
             await this.userMovieRepository.DeleteAllForUserAsync(id);
             await this.userManager.DeleteAsync(userToDelete);
@@ -32,8 +31,70 @@ namespace MyMovieCollection.Core.Services
         public async Task<User> GetUserByIdAsync(string id) {
             ArgumentNullException.ThrowIfNull(id, nameof(id));
             var user = await this.userManager.FindByIdAsync(id);
-            if (user is null) throw new NullReferenceException();
+            if (user is null) throw new NullReferenceException("There is no user with this Id");
             return user;
+        }
+
+        public async Task LoginAsync(string userName, string password)
+        {
+            var user = await this.userManager.FindByNameAsync(userName);
+
+            if (user is null)
+            {
+                throw new NullReferenceException("Incorrect Login");
+            }
+
+            var result = await this.signInManager.PasswordSignInAsync(user, password, true, true);
+
+            if (!result.Succeeded) 
+            {
+                throw new ArgumentException("Incorrect Password");
+            }
+        }
+
+        public async Task SignOutAsync()
+        {
+            await this.signInManager.SignOutAsync();
+        }
+
+        public async Task SignupAsync(User user, string password)
+        {
+            var result = await this.userManager.CreateAsync(user, password);
+
+            if(!result.Succeeded) 
+            {
+                var exceptions = new List<Exception>();
+
+                foreach (var error in result.Errors)
+                {
+                    exceptions.Add(new ArgumentException(error.Description, error.Code));
+                }
+
+                throw new AggregateException(exceptions);
+            }
+
+            // var role = new IdentityRole {Name = "Admin"};
+            // await roleManager.CreateAsync(role);
+            // await userManager.AddToRoleAsync(newUser, role.Name);
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            var result = await this.userManager.UpdateAsync(user);;
+
+            if (!result.Succeeded)
+            {
+                var exceptions = new List<Exception>();
+
+                foreach (var error in result.Errors)
+                {
+                    exceptions.Add(new ArgumentException(error.Description, error.Code));
+                }
+
+                throw new AggregateException(exceptions);
+            }
+
+            await this.signInManager.RefreshSignInAsync(user);
         }
 
         public async Task<FileStream> UploadProfilePicture(string fileName, User user)
