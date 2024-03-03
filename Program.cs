@@ -1,23 +1,29 @@
-using MyMovieCollection.Models;
+using MyMovieCollection.Middlewares;
 using MyMovieCollection.Repositories;
 using MyMovieCollection.Repositories.Base;
-using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<IMovieRepository, MovieSqlRepository>();
+builder.Services.AddTransient<LogMiddleware>();
 
+builder.Services.AddScoped<IMovieRepository, MovieSqlRepository>();
+builder.Services.AddScoped<IUserRepository, UserSqlRepository>();
+builder.Services.AddScoped<ILogRepository, LogSqlRepository>();
 
 var app = builder.Build();
 
-if(app.Environment.IsDevelopment()) {
+if (app.Environment.IsDevelopment())
+{
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
+app.UseMiddleware<LogMiddleware>();
+
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();

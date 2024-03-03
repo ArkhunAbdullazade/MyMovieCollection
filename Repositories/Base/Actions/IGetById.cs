@@ -1,7 +1,5 @@
-namespace MyMovieCollection.Repositories.Base.Actions
+namespace MyMovieCollection.Repositories.Base.Actions;
+public interface IGetById<T>
 {
-    public interface IGetById<T>
-    {
-        public Task<T?> GetByIdAsync(int id);
-    }
+    public Task<T?> GetByIdAsync(int id);
 }

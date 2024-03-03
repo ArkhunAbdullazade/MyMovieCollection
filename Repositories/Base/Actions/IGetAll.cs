@@ -1,7 +1,5 @@
-namespace MyMovieCollection.Repositories.Base.Actions
+namespace MyMovieCollection.Repositories.Base.Actions;
+public interface IGetAll<T>
 {
-    public interface IGetAll<T>
-    {
-        public Task<IEnumerable<T>> GetAllAsync();
-    }
+    public Task<IEnumerable<T>> GetAllAsync();
 }
