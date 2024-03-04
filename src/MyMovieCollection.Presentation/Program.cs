@@ -36,6 +36,7 @@ builder.Services.AddScoped<ILogRepository, LogSqlRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IUserMovieService, UserMovieService>();
+builder.Services.AddScoped<IUserUserService, UserUserService>();
 
 var app = builder.Build();
 

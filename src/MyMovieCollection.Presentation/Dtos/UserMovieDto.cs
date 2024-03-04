@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace MyMovieCollectionю.Presentation.Dtos;
 public class UserMovieDto
 {

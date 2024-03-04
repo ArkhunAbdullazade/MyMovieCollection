@@ -15,37 +15,15 @@ public class UserController : Controller
     private readonly UserManager<User> userManager;
     private readonly IUserService userService;
     private readonly IUserMovieService userMovieService;
+    private readonly IUserUserService userUserService;
 
-    public UserController(UserManager<User> userManager, IUserService userService, IUserMovieService userMovieService)
+    public UserController(UserManager<User> userManager, IUserService userService, IUserMovieService userMovieService, IUserUserService userUserService)
     {
         this.userManager = userManager;
         this.userService = userService;
         this.userMovieService = userMovieService;
+        this.userUserService = userUserService;
     }
-
-    [HttpGet]
-    public async Task<IActionResult> Profile() 
-    {
-        var user = await this.userManager.GetUserAsync(User);
-        return base.View(user);
-    }
-
-    // [HttpGet]
-    // [Route("/[controller]")]
-    // public async Task<IActionResult> GetUserById(string id) 
-    // {
-    //     User? user = null;
-    //     try
-    //     {
-    //         user = await userService.GetUserByIdAsync(id);
-    //     }
-    //     catch (Exception)
-    //     {
-    //         return NotFound("User is Not Found");
-    //     }
-
-    //     return base.View(user);
-    // }
 
     [HttpGet]
     [Route("/Users")]
@@ -74,13 +52,50 @@ public class UserController : Controller
         return RedirectToAction("GetAll");
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Profile(string id) 
+    {
+        var user = await this.userManager.FindByIdAsync(id);
+
+        ViewData["IsFollowed"] = await this.userUserService.IsFollowedAsync(userManager.GetUserId(User)!, id);
+
+        return base.View(user);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Follow([FromForm] FollowDto followDto)
+    {
+        var newUserUser = new UserUser {
+            FollowerId = userManager.GetUserId(User),
+            FollowedUserId = followDto.FollowedUserId,
+        };
+
+        try
+        {
+            await this.userUserService.AddUserUserAsync(newUserUser);
+        }
+        catch (Exception)
+        {
+            return View("Profile", new { id = followDto.FollowedUserId });
+        }
+
+        return RedirectToAction("Profile", new { id = followDto.FollowedUserId });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Update() 
+    {
+        var user = await this.userManager.GetUserAsync(User);
+        return base.View(user);
+    }
+
     [HttpPut]
     [Consumes("application/json")]
     public async Task<IActionResult> Update([FromBody]UserUpdateDto userUpdateDto) 
     {
         if (!ModelState.IsValid)
         {
-            return View("Profile");
+            return View("Update");
         }
         
         var user = await this.userManager.GetUserAsync(User);
@@ -98,10 +113,10 @@ public class UserController : Controller
             {
                 base.ModelState.AddModelError(error.ParamName!, error.Message);
             }
-            return View("Profile");
+            return View("Update");
         }
 
-        return RedirectToAction("Profile");
+        return RedirectToAction("Update");
     }
 
     [HttpPost]

@@ -8,6 +8,7 @@ public class MyMovieCollectionDbContext : IdentityDbContext<User, IdentityRole, 
 {
     public DbSet<Log> Logs { get; set; }
     public DbSet<UserMovie> UsersMovies { get; set; }
+    public DbSet<UserUser> UsersUsers { get; set; }
     
     public MyMovieCollectionDbContext(DbContextOptions<MyMovieCollectionDbContext> options) : base(options) {}
 }

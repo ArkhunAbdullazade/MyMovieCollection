@@ -281,6 +281,29 @@ namespace MyMovieCollection.Presentation.Migrations
                     b.ToTable("UsersMovies");
                 });
 
+            modelBuilder.Entity("MyMovieCollection.Core.Models.UserUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FollowedUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FollowerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FollowedUserId");
+
+                    b.HasIndex("FollowerId");
+
+                    b.ToTable("UsersUsers");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -339,6 +362,21 @@ namespace MyMovieCollection.Presentation.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MyMovieCollection.Core.Models.UserUser", b =>
+                {
+                    b.HasOne("MyMovieCollection.Core.Models.User", "FollowedUser")
+                        .WithMany()
+                        .HasForeignKey("FollowedUserId");
+
+                    b.HasOne("MyMovieCollection.Core.Models.User", "Follower")
+                        .WithMany()
+                        .HasForeignKey("FollowerId");
+
+                    b.Navigation("FollowedUser");
+
+                    b.Navigation("Follower");
                 });
 #pragma warning restore 612, 618
         }

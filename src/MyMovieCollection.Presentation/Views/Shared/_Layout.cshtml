@@ -1,9 +1,11 @@
 ﻿@using System.Security.Claims;
+@using Microsoft.AspNetCore.Identity;
 
 @{
     bool isAuthenticated = base.User.Identity?.IsAuthenticated ?? false;
     bool isAdmin = base.User.IsInRole("Admin");
     string? userName = User.FindFirst(ClaimTypes.Name)?.Value;
+    string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 }
 
 <!DOCTYPE html>
@@ -37,7 +39,7 @@
                                 @userName
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" asp-area="" asp-controller="User" asp-action="Profile">Profile</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="User" asp-action="Profile" asp-route-id="@userId">Profile</a>
                                     <a class="dropdown-item" asp-area="" asp-controller="User" asp-action="UserMovies">Movies</a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="Logout">Logout</a>

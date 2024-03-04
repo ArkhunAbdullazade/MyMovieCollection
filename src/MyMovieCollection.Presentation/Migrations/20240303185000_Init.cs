@@ -196,6 +196,30 @@ namespace MyMovieCollection.Presentation.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "UsersUsers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FollowerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    FollowedUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UsersUsers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UsersUsers_AspNetUsers_FollowedUserId",
+                        column: x => x.FollowedUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_UsersUsers_AspNetUsers_FollowerId",
+                        column: x => x.FollowerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -239,6 +263,16 @@ namespace MyMovieCollection.Presentation.Migrations
                 name: "IX_UsersMovies_UserId",
                 table: "UsersMovies",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UsersUsers_FollowedUserId",
+                table: "UsersUsers",
+                column: "FollowedUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UsersUsers_FollowerId",
+                table: "UsersUsers",
+                column: "FollowerId");
         }
 
         /// <inheritdoc />
@@ -264,6 +298,9 @@ namespace MyMovieCollection.Presentation.Migrations
 
             migrationBuilder.DropTable(
                 name: "UsersMovies");
+
+            migrationBuilder.DropTable(
+                name: "UsersUsers");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

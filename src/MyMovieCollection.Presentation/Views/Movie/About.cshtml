@@ -177,14 +177,9 @@
                                     <div>
                                     <div class="d-flex justify-content-between align-items-center">
                                         <p class="mb-1">
-                                        @if (review.UserId != currUserReview?.UserId) {
-                                            @review.User?.UserName
-                                        }
-                                        else {
-                                            <a class="link-warning" asp-area="" asp-controller="User" asp-action="Profile">@review.User?.UserName</a>
-                                        }
-                                        @if (@review.Rating is null) { <span>N/R</span> }
-                                        else { <span>@(MathF.Round((float)review.Rating!, 1))/10</span> }
+                                            <a class="link-warning" asp-area="" asp-controller="User" asp-action="Profile" asp-route-id="@review.UserId">@review.User?.UserName</a>
+                                            @if (@review.Rating is null) { <span>N/R</span> }
+                                            else { <span>@(MathF.Round((float)review.Rating!, 1))/10</span> }
                                         </p>
                                     </div>
                                     <p class="small mb-0"> @review.Review </p>
