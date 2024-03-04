@@ -1,6 +1,8 @@
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using MyMovieCollection.Core.Models;
 using MyMovieCollection.Core.Repositories;
 using MyMovieCollection.Core.Services;
@@ -126,7 +128,7 @@ public class UserController : Controller
         using var fileStream = await userService.UploadProfilePicture(file.FileName, user!);
         await file.CopyToAsync(fileStream);
 
-        return base.RedirectToAction("Profile");
+        return base.RedirectToAction("Update");
     }
 
     [HttpGet]

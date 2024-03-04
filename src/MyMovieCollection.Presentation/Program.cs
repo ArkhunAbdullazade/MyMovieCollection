@@ -30,6 +30,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddTransient<LogMiddleware>();
 
 builder.Services.AddScoped<IUserMovieRepository, UserMovieSqlRepository>();
+builder.Services.AddScoped<IUserUserRepository, UserUserSqlRepository>();
 builder.Services.AddScoped<IMovieRepository, MovieApiRepository>();
 builder.Services.AddScoped<ILogRepository, LogSqlRepository>();
 

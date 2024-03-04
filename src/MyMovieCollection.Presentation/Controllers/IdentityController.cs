@@ -61,7 +61,7 @@ public class IdentityController : Controller
     {
         if (!ModelState.IsValid)
         {
-            return View();
+            return View("Signup");
         }
 
         var newUser = new User()
