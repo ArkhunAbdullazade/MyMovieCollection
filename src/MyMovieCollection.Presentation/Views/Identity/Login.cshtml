@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = $"Login";
+
+    string Login = string.Empty;
+    string Password = string.Empty;
+    string? ReturnUrl = ViewData["returnUrl"] as string;
+}
+
+<div>
+    <h1>@ViewData["Title"]</h1>
+    <form method="post" asp-action="Login" asp-controller="Identity">
+        <input type="hidden" asp-for="@ReturnUrl">
+        
+        <div class="form-outline mb-4">
+            <input type="text" asp-for="@Login" class="form-control" placeholder="Login"/>
+            <span asp-validation-for="@Login" class="text-danger"></span>
+        </div>
+
+        <div class="form-outline mb-4">
+            <input type="password" asp-for="@Password" class="form-control" placeholder="Password"/>
+            <span asp-validation-for="@Password" class="text-danger"></span>
+        </div>
+
+        <p>Not a member? <a asp-controller="Identity" asp-action="Signup">Sign Up</a></p>
+
+        <button type="submit" class="btn btn-primary btn-block mb-4">Sign In</button>
+    </form>
+</div>
