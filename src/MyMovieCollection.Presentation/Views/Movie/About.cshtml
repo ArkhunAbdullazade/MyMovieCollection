@@ -4,6 +4,7 @@
     var allReviews = ViewData["Reviews"] as IEnumerable<UserMovie> ?? Enumerable.Empty<UserMovie>();
     var currUserReview = ViewData["currUserReview"] as UserMovie;
     var isAuthenticated = base.User.Identity?.IsAuthenticated ?? false;
+    bool isAdmin = base.User.IsInRole("Admin");
     
     int Id = Model.Id;
     string? Score = string.Empty;
@@ -148,21 +149,14 @@
             <br>
             <p class="description">@Model.Overview</p>
             @if (isAuthenticated) {
-                @if(currUserReview is not null) {
-                    <button onclick="changeReviewModalData('@currUserReview.Review', '@(currUserReview.Rating is not null ? MathF.Round((float)currUserReview.Rating!, 1) : "N/R")', '@currUserReview.User?.UserName')" 
-                            type="button" 
-                            class="btn btn-warning" 
-                            data-toggle="modal" 
-                            data-target="#reviewModal">My Review</button>
-                }
-                else {
+                @if(currUserReview is null) {
                     <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#addReviewModal">Add to Watched</button>
                 }
                 <div class="row">
                     <div class="col">
-                        <div class="d-flex flex-start mt-3">
-                            @foreach (var review in allReviews)
-                            {
+                        @foreach (var review in allReviews)
+                        {
+                            <div class="d-flex flex-start mt-3">
                                 @if (string.IsNullOrWhiteSpace(@review.User?.ProfilePicture))
                                 {
                                     <img class="rounded-circle shadow-1-strong me-3" src="~/ProfilePictures/DefaultProfilePicture.png" 
@@ -175,18 +169,24 @@
                                 }
                                 <div class="flex-grow-1 flex-shrink-1">
                                     <div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <p class="mb-1">
-                                            <a class="link-warning" asp-area="" asp-controller="User" asp-action="Profile" asp-route-id="@review.UserId">@review.User?.UserName</a>
-                                            @if (@review.Rating is null) { <span>N/R</span> }
-                                            else { <span>@(MathF.Round((float)review.Rating!, 1))/10</span> }
-                                        </p>
-                                    </div>
-                                    <p class="small mb-0"> @review.Review </p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <p class="mb-1">
+                                                <a class="link-warning" asp-area="" asp-controller="User" asp-action="Profile" asp-route-id="@review.UserId">@review.User?.UserName</a>
+                                                @if (@review.Rating is null) { <span>N/R</span> }
+                                                else { <span>@(MathF.Round((float)review.Rating!, 1))/10</span> }
+                                            </p>    
+                                        </div>
+                                        <p class="small mb-0"> @review.Review </p>
                                     </div>
                                 </div>
-                            }
-                        </div>
+                                @if(isAdmin) {
+                                    <form method="post" asp-action="Delete" asp-controller="Movie" asp-route-id="@review.Id">
+                                        <button class="btn btn-danger mt-2" type="submit" onclick="deleteUser(@review.Id)">DELETE</button>
+                                    </form>
+                                }
+                                
+                            </div>
+                        }
                     </div>
                 </div>
             }

@@ -11,12 +11,10 @@ namespace MyMovieCollection.Core.Services
     public class MovieService : IMovieService
     {
         private readonly IMovieRepository movieRepository;
-        private readonly IUserMovieRepository userMovieRepository;
 
-        public MovieService(IMovieRepository movieRepository, IUserMovieRepository userMovieRepository)
+        public MovieService(IMovieRepository movieRepository)
         {
             this.movieRepository = movieRepository;
-            this.userMovieRepository = userMovieRepository;
         }
         public async Task<MoviesResponse> GetAllAsync(int page = 1, string? search = null)
         {

@@ -12,7 +12,7 @@ using MyMovieCollection.Infrastructure.Data;
 namespace MyMovieCollection.Presentation.Migrations
 {
     [DbContext(typeof(MyMovieCollectionDbContext))]
-    [Migration("20240303185000_Init")]
+    [Migration("20240305174414_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -264,6 +264,9 @@ namespace MyMovieCollection.Presentation.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreationDate")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("MovieId")
                         .HasColumnType("int");

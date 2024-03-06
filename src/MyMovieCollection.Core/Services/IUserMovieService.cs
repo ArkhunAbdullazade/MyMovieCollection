@@ -5,6 +5,6 @@ public interface IUserMovieService
 {
     public Task<IEnumerable<UserMovie>> GetAllByMovieIdAsync(int id);
     public Task<IEnumerable<Movie>> GetAllMoviesByUserIdAsync(string id);
+    public Task<IEnumerable<UserMovie>> GetAllLastFollowedUsersMovies(string followerId);
     public Task AddUserMovieAsync(UserMovie userMovie);
-
 }

@@ -88,7 +88,6 @@ namespace MyMovieCollection.Core.Services
 
                 foreach (var error in result.Errors)
                 {
-                    System.Console.WriteLine("Hello World");
                     exceptions.Add(new ArgumentException(error.Description, error.Code));
                 }
 

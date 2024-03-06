@@ -69,21 +69,6 @@ public class MovieController : Controller
         return View(movie);
     }
 
-    [HttpGet]
-    [ActionName("Review")]
-    [Authorize]
-    public async Task<IActionResult> GetReviewById(int movieId, string? userId = null)
-    {        
-        userId ??= this.userManager.GetUserId(User);
-
-        var review = await userMovieRepository.GetByUserAndMovieIdAsync(userId!, movieId);
-
-        base.ViewData["CurrentUser"] = await userManager.GetUserAsync(User);
-        base.ViewData["CurrentMovie"] = await movieRepository.GetByIdAsync(movieId);
-
-        return View(review);
-    }
-
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Add([FromForm] UserMovieDto userMovieDto)
@@ -105,5 +90,21 @@ public class MovieController : Controller
         }
 
         return RedirectToAction("About", new { id = userMovieDto.Id });
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await this.userMovieRepository.DeleteByReviewId(id);
+        }
+        catch (Exception)
+        {
+            return NotFound();
+        }
+
+        return RedirectToAction(controllerName: "Home", actionName: "Index");
     }
 }

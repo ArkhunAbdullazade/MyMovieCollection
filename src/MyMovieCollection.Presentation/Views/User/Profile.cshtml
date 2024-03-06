@@ -8,9 +8,7 @@
   string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
   bool isFollowed = ViewData["IsFollowed"] as bool? ?? false;
 
-  string UserName = string.Empty;
-  string Email = string.Empty;
-  string PhoneNumber = string.Empty;
+  string? FollowedUserId = @Model.Id;
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -62,13 +60,13 @@
         </div>
         @if (!isFollowed && Model.Id != userId) {
           <form class="text-center mb-3" method="post" asp-action="Follow" asp-controller="User">
-            <input type="hidden" asp-for="@Model.Id">
+            <input type="hidden" asp-for="@FollowedUserId">
             <button class="btn btn-warning" type="Submit">Follow</button>
           </form>
         }
         else if (Model.Id == userId) {
           <form class="text-center mb-3" >
-            <a class="btn btn-warning" asp-area="" asp-controller="User" asp-action="Update">Edit Profile</a>
+            <a class="btn btn-warning" asp-area="" asp-controller="User" asp-action="UpdateProfile">Edit Profile</a>
           </form>
         }
       </div>
@@ -78,19 +76,21 @@
         <div class="card-header">Account Details</div>
         <div class="card-body"><div class="mb-3">
               <label class="small mb-1" for="inputUsername">Username</label>
-              <input asp-for="@UserName" class="form-control" id="inputUsername" type="text"
+              <input class="form-control" id="inputUsername" type="text"
                 placeholder="Enter your username" value="@Model.UserName" readonly>
             </div>
-            <div class="mb-3">
-              <label class="small mb-1" for="inputEmailAddress">Email address</label>
-              <input asp-for="@Email" class="form-control" id="inputEmailAddress" type="email"
-                placeholder="Enter your email address" value="@Model.Email" readonly>
-            </div>
-            <div class="mb-3">
-              <label class="small mb-1" for="inputPhone">Phone number</label>
-              <input asp-for="@PhoneNumber" class="form-control" id="inputPhone" type="tel"
-                placeholder="Enter your phone number" value="@Model.PhoneNumber" readonly>
-            </div>
+            @if(Model.Id == userId) {
+              <div class="mb-3">
+                <label class="small mb-1" for="inputEmailAddress">Email address</label>
+                <input class="form-control" id="inputEmailAddress" type="email"
+                  placeholder="Enter your email address" value="@Model.Email" readonly>
+              </div>
+              <div class="mb-3">
+                <label class="small mb-1" for="inputPhone">Phone number</label>
+                <input class="form-control" id="inputPhone" type="tel"
+                  placeholder="Enter your phone number" value="@Model.PhoneNumber" readonly>
+              </div>
+            }
         </div>
       </div>
     </div>

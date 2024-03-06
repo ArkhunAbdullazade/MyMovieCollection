@@ -85,9 +85,13 @@ public class UserController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Update() 
+    public async Task<IActionResult> UpdateProfile() 
     {
         var user = await this.userManager.GetUserAsync(User);
+        System.Console.WriteLine(user is null);
+        System.Console.WriteLine(user is null);
+        System.Console.WriteLine(user is null);
+        System.Console.WriteLine(user is null);
         return base.View(user);
     }
 
@@ -97,7 +101,7 @@ public class UserController : Controller
     {
         if (!ModelState.IsValid)
         {
-            return View("Update");
+            return View("UpdateProfile");
         }
         
         var user = await this.userManager.GetUserAsync(User);
@@ -115,10 +119,10 @@ public class UserController : Controller
             {
                 base.ModelState.AddModelError(error.ParamName!, error.Message);
             }
-            return View("Update");
+            return View("UpdateProfile");
         }
 
-        return RedirectToAction("Update");
+        return RedirectToAction("UpdateProfile");
     }
 
     [HttpPost]
@@ -128,7 +132,7 @@ public class UserController : Controller
         using var fileStream = await userService.UploadProfilePicture(file.FileName, user!);
         await file.CopyToAsync(fileStream);
 
-        return base.RedirectToAction("Update");
+        return base.RedirectToAction("UpdateProfile");
     }
 
     [HttpGet]

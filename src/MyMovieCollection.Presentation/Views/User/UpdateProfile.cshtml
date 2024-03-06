@@ -84,7 +84,7 @@
               <input asp-for="@PhoneNumber" class="form-control" id="inputPhone" type="tel"
                 placeholder="Enter your phone number" value="@Model.PhoneNumber">
             </div>
-            <button class="btn btn-warning justify-content-center" type="submit" onclick="updateUser()">Save
+            <button class="btn btn-warning justify-content-center" type="submit" onclick="updateUser('@Model.Id')">Save
               changes</button>
           </form>
         </div>
@@ -94,7 +94,7 @@
 </div>
 
 <script>
-  async function updateUser() {
+  async function updateUser(id) {
     event.preventDefault();
     const form = document.getElementById('user-update-form');
     const formData = new FormData(form);
@@ -111,7 +111,7 @@
       }
     })
       .then(data => {
-        window.location.href = '/User/Update';
+        window.location.href = `/User/Profile?id=${id}`;
       });
   }
 </script>

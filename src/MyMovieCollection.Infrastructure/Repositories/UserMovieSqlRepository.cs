@@ -18,6 +18,11 @@ namespace MyMovieCollection.Infrastructure.Repositories
             return await this.dbContext.UsersMovies.Where(um => um.UserId == userId && um.MovieId == movieId).FirstOrDefaultAsync();
         }
 
+        public async Task<UserMovie?> GetByReviewIdAsync(int id)
+        {
+            return await this.dbContext.UsersMovies.Where(um => um.Id == id).FirstOrDefaultAsync();
+        }
+
         public async Task<IEnumerable<UserMovie>> GetAllByMovieIdAsync(int movieId)
         {
             return await this.dbContext.UsersMovies.Where(um => um.MovieId == movieId).ToListAsync();
@@ -52,6 +57,14 @@ namespace MyMovieCollection.Infrastructure.Repositories
             }
             await this.dbContext.SaveChangesAsync();
             return allUmsToDelete.Count();
+        }
+
+        public async Task<bool> DeleteByReviewId(int id)
+        {
+            var umToDelete = await this.GetByReviewIdAsync(id);
+            this.dbContext.UsersMovies.Remove(umToDelete!);
+            await this.dbContext.SaveChangesAsync();
+            return true;
         }
     }
 }

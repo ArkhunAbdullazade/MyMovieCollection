@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Home Page";
+
+    var lastFriendsMovies = ViewData["LastFriendsMovies"] as IEnumerable<UserMovie> ?? Enumerable.Empty<UserMovie>();
 }
 
 <style>
@@ -53,10 +55,50 @@
         margin: 5px;
         text-align: center;
     }
+
+    .friends-list {
+        flex-direction: column;
+        border: 2px solid dimgray;
+        border-radius: 15px;
+        padding: 10px;
+    }
+    
+    .friends-list .img-div {
+        flex-direction: column;
+        border: 2px solid dimgray;
+        border-radius: 15px;
+        padding: 5px;
+        width: 240px;
+        height: 413px;
+    }
+
+    .friends-list {
+        display: block;
+        padding: 10px;
+        padding-bottom: 25px;
+    }
+    .friends-list > div {
+        flex-direction: column;
+        display: inline-flex;
+        width: 240px;
+        height: 413px;
+        margin-bottom: 10px;
+
+    }
+    .friends-list > div > div{
+        margin: 5px;
+        text-align: center;
+    }
+
+    .rounded-circle { 
+        width: 25px;
+        height: 25px;
+    }
 </style>
 
 <h2>Last Logged Movies</h2>
 <div class="list mb-4">
+    
     @foreach (var movie in Model.Take(5))
     {
         <div>
@@ -68,4 +110,36 @@
             </div>
         </div>
     }
+
+    
 </div>
+
+@if(lastFriendsMovies.Any()) {
+    <h2>Your Friends Last Watched Movies</h2>
+    <div class="friends-list mb-4">
+        @foreach (var movie in lastFriendsMovies.Take(5))
+        {
+            <div>
+                <div class="d-flex flex-start">
+                    @if (string.IsNullOrWhiteSpace(@movie.User?.ProfilePicture))
+                    {
+                        <img class="rounded-circle me-1" src="~/ProfilePictures/DefaultProfilePicture.png" 
+                        alt="avatar" >
+                    }
+                    else
+                    {
+                        <img class="rounded-circle me-1" src="@movie.User?.ProfilePicture" 
+                        alt="avatar" >
+                    }
+                    <a class="link-warning" asp-area="" asp-controller="User" asp-action="Profile" asp-route-id="@movie.UserId">@movie.User?.UserName</a>
+                </div>
+                <div class="img-div">
+                    <a asp-action="About" asp-controller="Movie" asp-route-id="@movie.MovieId"><img src="@(movie.Movie?.PosterPath ?? "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Black.png/220px-Black.png")" alt="movie poster" /></a>
+                </div>
+                <div>
+                    <span class="title"><b>@(movie.Movie?.Title ?? "Unknown")</b></span>
+                </div>
+            </div>
+        }
+    </div>
+}

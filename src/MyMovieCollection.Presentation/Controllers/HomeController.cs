@@ -26,7 +26,12 @@ public class HomeController : Controller
     [Route("/Home")]
     public async Task<IActionResult> Index()
     {
-        var movies = await this.userMovieService.GetAllMoviesByUserIdAsync(this.userManager.GetUserId(User)!);
+        var currUserId = this.userManager.GetUserId(User)!;
+        
+        var movies = await this.userMovieService.GetAllMoviesByUserIdAsync(currUserId);
+
+        ViewData["LastFriendsMovies"] = await userMovieService.GetAllLastFollowedUsersMovies(currUserId);
+
         return View(movies);
     }
 

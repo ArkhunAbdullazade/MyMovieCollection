@@ -18,13 +18,11 @@ namespace MyMovieCollection.Core.Services
         }
 
         public async Task AddUserUserAsync(UserUser userUser)
-        {
-            var notFound = await this.userUserRepository.GetByFollowerAndFollowedUserIdAsync(userUser.FollowerId!, userUser.FollowedUserId!) is null;
+        {            
+            if(await IsFollowedAsync(userUser.FollowerId!, userUser.FollowedUserId!)) throw new NullReferenceException();
             
-            if(notFound) throw new NullReferenceException();
-
             await this.userUserRepository.CreateAsync(userUser);
-        }
+        } 
 
         public async Task<bool> IsFollowedAsync(string followerId, string followedUserId)
         {

@@ -184,7 +184,8 @@ namespace MyMovieCollection.Presentation.Migrations
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     MovieId = table.Column<int>(type: "int", nullable: false),
                     Review = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Rating = table.Column<float>(type: "real", nullable: true)
+                    Rating = table.Column<float>(type: "real", nullable: true),
+                    CreationDate = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
