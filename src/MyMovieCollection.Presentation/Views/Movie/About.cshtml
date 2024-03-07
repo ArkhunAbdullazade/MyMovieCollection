@@ -179,7 +179,7 @@
                                         <p class="small mb-0"> @review.Review </p>
                                     </div>
                                 </div>
-                                @if(isAdmin) {
+                                @if(isAdmin || currUserReview?.UserId == review.UserId) {
                                     <form method="post" asp-action="Delete" asp-controller="Movie" asp-route-id="@review.Id">
                                         <button class="btn btn-danger mt-2" type="submit" onclick="deleteUser(@review.Id)">DELETE</button>
                                     </form>
