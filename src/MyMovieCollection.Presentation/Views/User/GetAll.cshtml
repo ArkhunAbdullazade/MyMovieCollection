@@ -78,8 +78,8 @@
                         <br>
                         <span><b>@(user.PhoneNumber ?? "Unknown")</b></span>
                         <br>
-                        <form method="post" asp-action="Delete" asp-controller="User" asp-route-id="@user.Id">
-                            <button class="btn btn-danger mt-2" type="submit" onclick="deleteUser(@user.Id)">DELETE</button>
+                        <form>
+                            <button class="btn btn-danger mt-2" type="submit" onclick="deleteUser('@user.Id')">DELETE</button>
                         </form>
                     </div>
                 </div>
@@ -98,7 +98,7 @@ else {
     {
         event.preventDefault();
 
-        await fetch('/User/Delete' + userId,
+        await fetch('/User/Delete?id=' + userId,
             {
                 method: "DELETE",
                 headers: {"Content-Type":"application/json"}

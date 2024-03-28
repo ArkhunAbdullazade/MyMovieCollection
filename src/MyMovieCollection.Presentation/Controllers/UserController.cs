@@ -38,10 +38,11 @@ public class UserController : Controller
         return base.View(model: users);
     }
 
-    [HttpPost]
+    [HttpDelete]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(string id)
     {
+        System.Console.WriteLine(123);
         try
         {
             await this.userService.DeleteUserAsync(id);

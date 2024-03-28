@@ -29,7 +29,8 @@
         background-position: right bottom;
         background-size: cover;
         background-image: url(@Model.BackdropPath);
-        box-shadow: 0 0 12px 10px #2d3238 inset;
+        box-shadow: 0 0 10px 10px #2d3238 inset,
+                    0 0 0 2000px rgba(0, 0, 0, 0.2) inset;;
         position: sticky;
         margin: auto;
     }
@@ -148,6 +149,11 @@
             else { <span class="score"><span>@(MathF.Round((float)Model.Score, 1))</span></span> }
             <br>
             <p class="description">@Model.Overview</p>
+            @if (Model.Trailer is not null) {
+                <div class="embed-responsive embed-responsive-16by9">
+                <embed width="700" height="400" src="https://www.youtube.com/embed/@Model.Trailer" type="video/webm" allowfullscreen></embed>
+                </div>
+            }
             @if (isAuthenticated) {
                 @if(currUserReview is null) {
                     <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#addReviewModal">Add to Watched</button>
@@ -190,7 +196,6 @@
                     </div>
                 </div>
             }
-            
         </div>
     </div>
     

@@ -53,6 +53,7 @@ public class MovieApiRepository : IMovieRepository
     public async Task<Movie?> GetByIdAsync(int id)
     {
         var result = await tmdbClient.GetMovieAsync(id);
+        var videos = await tmdbClient.GetMovieVideosAsync(id);
 
         var movie = new Movie()
             {
@@ -66,6 +67,7 @@ public class MovieApiRepository : IMovieRepository
                 Adult = result.Adult,
                 PosterPath = result.PosterPath is not null ? $"https://image.tmdb.org/t/p/original/{result.PosterPath}" : null,
                 BackdropPath = result.BackdropPath is not null ? $"https://image.tmdb.org/t/p/original/{result.BackdropPath}" : null,
+                Trailer = videos.Results.Any(v => v.Type == "Trailer") ? videos.Results.Where(v => v.Type == "Trailer").First().Key : null,
             };
 
         return movie;

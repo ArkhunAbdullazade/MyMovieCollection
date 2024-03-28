@@ -75,7 +75,7 @@ namespace MyMovieCollection.Core.Services
 
             // var role = new IdentityRole {Name = "Admin"};
             // await roleManager.CreateAsync(role);
-            // await userManager.AddToRoleAsync(newUser, role.Name);
+            // await userManager.AddToRoleAsync(user, role.Name);
         }
 
         public async Task UpdateUserAsync(User user)

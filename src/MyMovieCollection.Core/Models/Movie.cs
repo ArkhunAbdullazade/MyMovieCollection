@@ -15,4 +15,5 @@ public class Movie
     public string? OriginalTitle { get; set; }
     public string? PosterPath { get; set; }
     public string? BackdropPath { get; set; }
+    public string? Trailer { get; set; }
 }
