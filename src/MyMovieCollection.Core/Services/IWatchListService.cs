@@ -5,4 +5,5 @@ public interface IWatchListService
 {
     public Task<IEnumerable<Movie>> GetAllMoviesByUserIdAsync(string id);
     public Task AddWatchListElementAsync(WatchListElement wlElm);
+    public Task<bool> IsWatchListed(string userId, int movieId);
 }

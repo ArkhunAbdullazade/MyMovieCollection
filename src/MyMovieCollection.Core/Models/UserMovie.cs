@@ -8,6 +8,7 @@ public class UserMovie
     public string? UserId { get; set; }
     public virtual User? User { get; set; }
     public int MovieId { get; set; }
+    [NotMapped]
     public virtual Movie? Movie { get; set; }
     public string? Review { get; set; }
     public float? Rating { get; set; }

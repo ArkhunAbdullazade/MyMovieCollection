@@ -12,7 +12,7 @@ using MyMovieCollection.Infrastructure.Data;
 namespace MyMovieCollection.Presentation.Migrations
 {
     [DbContext(typeof(MyMovieCollectionDbContext))]
-    [Migration("20240305174414_Init")]
+    [Migration("20240329223935_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -310,6 +310,27 @@ namespace MyMovieCollection.Presentation.Migrations
                     b.ToTable("UsersUsers");
                 });
 
+            modelBuilder.Entity("MyMovieCollection.Core.Models.WatchListElement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("MovieId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("WatchList");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -383,6 +404,15 @@ namespace MyMovieCollection.Presentation.Migrations
                     b.Navigation("FollowedUser");
 
                     b.Navigation("Follower");
+                });
+
+            modelBuilder.Entity("MyMovieCollection.Core.Models.WatchListElement", b =>
+                {
+                    b.HasOne("MyMovieCollection.Core.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

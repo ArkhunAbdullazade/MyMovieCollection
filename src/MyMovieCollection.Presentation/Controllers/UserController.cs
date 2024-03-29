@@ -61,7 +61,7 @@ public class UserController : Controller
     public async Task<IActionResult> Profile(string id) 
     {
         var user = await this.userManager.FindByIdAsync(id);
-
+        
         ViewData["IsFollowed"] = await this.userUserService.IsFollowedAsync(userManager.GetUserId(User)!, id);
         ViewData["FollowedUsers"] = await this.userUserService.GetFollowedUsersByUserId(id);
         ViewData["Followers"] = await this.userUserService.GetFollowersByUserId(id);

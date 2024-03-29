@@ -26,8 +26,7 @@ namespace MyMovieCollection.Core.Services
         public async Task AddWatchListElementAsync(WatchListElement wlElm)
         {
             var allWlElms = await this.watchListRepository.GetAllByUserIdAsync(wlElm.UserId!);
-        
-            if (allWlElms.Any(e => e.Id == wlElm.Id)) throw new ArgumentException();
+            if (allWlElms.Any(e => e.MovieId == wlElm.MovieId)) throw new ArgumentException();
 
             await this.watchListRepository.CreateAsync(wlElm);       
         }
@@ -44,6 +43,11 @@ namespace MyMovieCollection.Core.Services
             var movies = await Task.WhenAll(ums.Select(async um => await movieRepository.GetByIdAsync(um.MovieId)));
 
             return movies!;        
+        }
+
+        public async Task<bool> IsWatchListed(string userId, int movieId)
+        {
+            return (await watchListRepository.GetByUserAndMovieIdAsync(userId, movieId)) is null ? false : true;
         }
     }
 }

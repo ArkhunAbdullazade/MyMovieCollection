@@ -6,6 +6,7 @@
     float? movieScore = ViewData["MovieScore"] as float?;
     var isAuthenticated = base.User.Identity?.IsAuthenticated ?? false;
     bool isAdmin = base.User.IsInRole("Admin");
+    var isInWatchList = (ViewData["isInWatchList"] as bool?) ?? false;
 
     int Id = Model.Id;
     string? Score = string.Empty;
@@ -187,10 +188,21 @@
             }
             @if (isAuthenticated)
             {
-                @if (currUserReview is null)
-                {
-                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#addReviewModal">Add to Watched</button>
-                }
+                
+                <div style="display: flex; flex-direction: row; items-align: center; gap: 5px; place-items: center;">
+                    @if (currUserReview is null)
+                    {
+                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#addReviewModal">Add to
+                            Watched</button>
+                    }
+                    @if (!isInWatchList)
+                    {
+                        <form method="post" asp-action="AddToWatchList" asp-controller="Movie">
+                            <input type="hidden" asp-for="@Id">
+                            <button type="submit" class="btn btn-warning">Add to WatchList</button>
+                        </form>
+                    }
+                </div>
                 <div class="row">
                     <div class="col">
                         @foreach (var review in allReviews)
@@ -232,7 +244,6 @@
                                             onclick="deleteUser('@review.Id')">DELETE</button>
                                     </form>
                                 }
-
                             </div>
                         }
                     </div>

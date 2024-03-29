@@ -7,7 +7,8 @@
 
   string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
   bool isFollowed = ViewData["IsFollowed"] as bool? ?? false;
-
+  var followers = ViewData["Followers"] as IEnumerable<User> ?? Enumerable.Empty<User>();
+  var followedUsers = ViewData["FollowedUsers"] as IEnumerable<User> ?? Enumerable.Empty<User>();
   string? FollowedUserId = @Model.Id;
 }
 
@@ -40,6 +41,15 @@
     background-color: rgba(33, 40, 50, 0.03);
     border-bottom: 1px solid rgba(33, 40, 50, 0.125);
   }
+  
+    .modal-header,
+    .modal-footer {
+        background-color: #2d3238;
+    }
+
+    .modal-body {
+        background-color: #2d3238;
+    }
 </style>
 
 <div class="container-xl px-4 mt-4">
@@ -91,12 +101,101 @@
                   placeholder="Enter your phone number" value="@Model.PhoneNumber" readonly>
               </div>
             }
-            <div style="display: flex; flex-direction: row; items-align: center; gap: 5px; place-items: center;">
-              <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#followersModal">Followers</button>
-              <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#followedUsersModal">Followings</button>
+            <div style="display: flex; flex-direction: row;" class="justify-content-between">
+              <div>
+                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#followersModal">Followers</button>
+                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#followedUsersModal">Followings</button>
+              </div>
+              <div>
+                <a type="button" class="btn btn-warning" asp-area="" asp-controller="User" asp-action="UserMovies" asp-route-userId="@Model.Id">Movies</a>
+                <a type="button" class="btn btn-warning" asp-area="" asp-controller="User" asp-action="WatchList" asp-route-userId="@Model.Id">Watchlist</a>
+              </div>
             </div>
         </div>
       </div>
     </div>
   </div>
+</div>
+
+<div class="modal fade" id="followersModal" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Followers</h4>
+            </div>
+              <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        @if(followers.Any()) {
+                          @foreach (var user in followers)
+                          {
+                            <div class="d-flex flex-start">
+                              @if (string.IsNullOrWhiteSpace(user.ProfilePicture))
+                              {
+                                  <img class="rounded-circle shadow-1-strong me-3"
+                                      src="~/ProfilePictures/DefaultProfilePicture.png" alt="avatar" width="25" height="25">
+                              }   
+                              else
+                              {
+                                  <img class="rounded-circle shadow-1-strong me-3" src="@user.ProfilePicture"
+                                      alt="avatar" width="25" height="25">
+                              }
+                              <a class="link-warning" asp-area="" asp-controller="User" asp-action="Profile"
+                                                    asp-route-id="@user.Id">@user.UserName</a>
+                            </div>
+                          }
+                        }
+                        else {
+                          <h5 class="title">There are no followers</h5>
+                        }
+                        
+                    </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="followedUsersModal" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Followed Users</h4>
+            </div>
+              <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        @if(followedUsers.Any()) {
+                          @foreach (var user in followedUsers)
+                          {
+                            <div class="d-flex flex-start">
+                              @if (string.IsNullOrWhiteSpace(user.ProfilePicture))
+                              {
+                                  <img class="rounded-circle shadow-1-strong me-3"
+                                      src="~/ProfilePictures/DefaultProfilePicture.png" alt="avatar" width="25" height="25">
+                              }   
+                              else
+                              {
+                                  <img class="rounded-circle shadow-1-strong me-3" src="@user.ProfilePicture"
+                                      alt="avatar" width="25" height="25">
+                              }
+                              <a class="link-warning" asp-area="" asp-controller="User" asp-action="Profile"
+                                                    asp-route-id="@user.Id">@user.UserName</a>
+                            </div>
+                          }
+                        }
+                        else {
+                          <h5 class="title">There are no followed users</h5>
+                        }
+                    </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+        </div>
+    </div>
 </div>

@@ -16,14 +16,16 @@ public class MovieController : Controller
     private readonly UserManager<User> userManager;
     private readonly IMovieService movieService;
     private readonly IUserMovieService userMovieService;
+    private readonly IWatchListService watchListService;
 
-    public MovieController(IMovieRepository movieRepository, IUserMovieRepository userMovieRepository, UserManager<User> userManager, IMovieService movieService, IUserMovieService userMovieService)
+    public MovieController(IMovieRepository movieRepository, IUserMovieRepository userMovieRepository, UserManager<User> userManager, IMovieService movieService, IUserMovieService userMovieService, IWatchListService watchListService)
     {
         this.movieRepository = movieRepository;
         this.userMovieRepository = userMovieRepository;
         this.userManager = userManager;
         this.movieService = movieService;
         this.userMovieService = userMovieService;
+        this.watchListService = watchListService;
     }
 
     [HttpGet] 
@@ -63,6 +65,7 @@ public class MovieController : Controller
 
         var allUserMovies = (await this.userMovieService.GetAllByMovieIdAsync(id)) ?? Enumerable.Empty<UserMovie>();
 
+        ViewData["isInWatchList"] = await watchListService.IsWatchListed(userManager.GetUserId(User)!, id);
         ViewData["currUserReview"] = allUserMovies.FirstOrDefault(um => um.UserId == userManager.GetUserId(User));
         ViewData["Reviews"] = allUserMovies;
         var allReviewsWithRating = allUserMovies.Where(um => um.Rating is not null);
@@ -92,6 +95,27 @@ public class MovieController : Controller
         }
 
         return RedirectToAction("About", new { id = userMovieDto.Id });
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> AddToWatchList([FromForm] WatchListElementDto watchListElementDto)
+    {
+        var newWatchListElement = new WatchListElement {
+            UserId = this.userManager.GetUserId(User),
+            MovieId = watchListElementDto.Id,
+        };
+        
+        try
+        {
+            await this.watchListService.AddWatchListElementAsync(newWatchListElement);
+        }
+        catch (Exception)
+        {
+            return BadRequest("This Movie is already in your list");
+        }
+
+        return RedirectToAction("About", new { id = newWatchListElement.MovieId });
     }
 
     [HttpPost]

@@ -221,6 +221,25 @@ namespace MyMovieCollection.Presentation.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "WatchList",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    MovieId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WatchList", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WatchList_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -274,6 +293,11 @@ namespace MyMovieCollection.Presentation.Migrations
                 name: "IX_UsersUsers_FollowerId",
                 table: "UsersUsers",
                 column: "FollowerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WatchList_UserId",
+                table: "WatchList",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -302,6 +326,9 @@ namespace MyMovieCollection.Presentation.Migrations
 
             migrationBuilder.DropTable(
                 name: "UsersUsers");
+
+            migrationBuilder.DropTable(
+                name: "WatchList");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
