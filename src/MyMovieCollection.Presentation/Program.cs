@@ -33,11 +33,13 @@ builder.Services.AddScoped<IUserMovieRepository, UserMovieSqlRepository>();
 builder.Services.AddScoped<IUserUserRepository, UserUserSqlRepository>();
 builder.Services.AddScoped<IMovieRepository, MovieApiRepository>();
 builder.Services.AddScoped<ILogRepository, LogSqlRepository>();
+builder.Services.AddScoped<IWatchListRepository, WatchListSqlRepository>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IUserMovieService, UserMovieService>();
 builder.Services.AddScoped<IUserUserService, UserUserService>();
+builder.Services.AddScoped<IWatchListService, WatchListService>();
 
 var app = builder.Build();
 

@@ -18,13 +18,15 @@ public class UserController : Controller
     private readonly IUserService userService;
     private readonly IUserMovieService userMovieService;
     private readonly IUserUserService userUserService;
+    private readonly IWatchListService watchListService;
 
-    public UserController(UserManager<User> userManager, IUserService userService, IUserMovieService userMovieService, IUserUserService userUserService)
+    public UserController(UserManager<User> userManager, IUserService userService, IUserMovieService userMovieService, IUserUserService userUserService, IWatchListService watchListService)
     {
         this.userManager = userManager;
         this.userService = userService;
         this.userMovieService = userMovieService;
         this.userUserService = userUserService;
+        this.watchListService = watchListService;
     }
 
     [HttpGet]
@@ -138,9 +140,17 @@ public class UserController : Controller
 
     [HttpGet]
     [Route("/[controller]/Movies")]
-    public async Task<IActionResult> UserMovies() 
+    public async Task<IActionResult> UserMovies(string? userId = null) 
     {
-        var movies = await this.userMovieService.GetAllMoviesByUserIdAsync(this.userManager.GetUserId(User)!);
+        var movies = await this.userMovieService.GetAllMoviesByUserIdAsync(userId ?? this.userManager.GetUserId(User)!);
+        return base.View(movies);
+    }
+
+    [HttpGet]
+    [Route("/[controller]/WatchList")]
+    public async Task<IActionResult> WatchList(string? userId = null) 
+    {
+        var movies = await this.watchListService.GetAllMoviesByUserIdAsync(userId ?? this.userManager.GetUserId(User)!);
         return base.View(movies);
     }
 }

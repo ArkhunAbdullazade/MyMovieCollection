@@ -36,7 +36,7 @@ namespace MyMovieCollection.Core.Services
         {
             var allUserMovies = await this.userMovieRepository.GetAllByUserIdAsync(userMovie.UserId!);
         
-            if (allUserMovies.Any(um => um.MovieId == userMovie.Id)) throw new ArgumentException();
+            if (allUserMovies.Any(um => um.Id == userMovie.Id)) throw new ArgumentException();
 
             userMovie.CreationDate = DateTime.Now.ToString();
 
