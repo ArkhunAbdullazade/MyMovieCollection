@@ -61,10 +61,12 @@ public class MovieController : Controller
             return NotFound($"Movie with id {id} doesn't exist");
         }
 
-        var allUserMovies = await this.userMovieService.GetAllByMovieIdAsync(id);
+        var allUserMovies = (await this.userMovieService.GetAllByMovieIdAsync(id)) ?? Enumerable.Empty<UserMovie>();
 
         ViewData["currUserReview"] = allUserMovies.FirstOrDefault(um => um.UserId == userManager.GetUserId(User));
         ViewData["Reviews"] = allUserMovies;
+        var allReviewsWithRating = allUserMovies.Where(um => um.Rating is not null);
+        ViewData["MovieScore"] = allReviewsWithRating.Any() ? allReviewsWithRating.Select(um => um.Rating).Sum() / allReviewsWithRating.Count() : null;
 
         return View(movie);
     }

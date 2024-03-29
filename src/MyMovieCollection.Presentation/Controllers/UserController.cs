@@ -63,6 +63,8 @@ public class UserController : Controller
         var user = await this.userManager.FindByIdAsync(id);
 
         ViewData["IsFollowed"] = await this.userUserService.IsFollowedAsync(userManager.GetUserId(User)!, id);
+        ViewData["FollowedUsers"] = await this.userUserService.GetFollowedUsersByUserId(id);
+        ViewData["Followers"] = await this.userUserService.GetFollowersByUserId(id);
 
         return base.View(user);
     }
@@ -91,10 +93,6 @@ public class UserController : Controller
     public async Task<IActionResult> UpdateProfile() 
     {
         var user = await this.userManager.GetUserAsync(User);
-        System.Console.WriteLine(user is null);
-        System.Console.WriteLine(user is null);
-        System.Console.WriteLine(user is null);
-        System.Console.WriteLine(user is null);
         return base.View(user);
     }
 

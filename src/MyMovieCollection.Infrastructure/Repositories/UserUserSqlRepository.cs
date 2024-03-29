@@ -30,5 +30,10 @@ namespace MyMovieCollection.Infrastructure.Repositories
         {
             return await this.dbContext.UsersUsers.Where(um => um.FollowerId == followerId).ToListAsync();
         }
+
+        public async Task<IEnumerable<UserUser>> GetAllFollowersByUserIdAsync(string? userId)
+        {
+            return await this.dbContext.UsersUsers.Where(um => um.FollowedUserId == userId).ToListAsync();
+        }
     }
 }
