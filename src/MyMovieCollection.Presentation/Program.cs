@@ -18,7 +18,7 @@ builder.Services.AddDbContext<MyMovieCollectionDbContext>(options =>
         builder.Configuration.GetConnectionString("MyMovieCollectionDb"),
         useSqlOptions => { useSqlOptions.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name); }
     );
-});
+}, ServiceLifetime.Transient);
 
 builder.Services.AddIdentity<User, IdentityRole>(options => {
     options.Password.RequireNonAlphanumeric = true;

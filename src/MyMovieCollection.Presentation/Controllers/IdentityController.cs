@@ -39,12 +39,12 @@ public class IdentityController : Controller
         }
         catch (ArgumentException exception)
         {
-            base.ModelState.AddModelError(exception.ParamName!, exception.Message);
-            return View("Login");
+            base.ModelState.AddModelError(exception.ParamName ?? "Unknown", exception.Message);
+            return View();
         }   
         catch (NullReferenceException exception)
         {
-            base.ModelState.AddModelError(exception.Source!, exception.Message);
+            base.ModelState.AddModelError(exception.Source ?? "Unknown", exception.Message);
             return View("Login");
         }
 

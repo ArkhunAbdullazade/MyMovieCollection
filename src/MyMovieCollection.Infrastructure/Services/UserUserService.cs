@@ -38,7 +38,12 @@ namespace MyMovieCollection.Core.Services
         public async Task<IEnumerable<User>> GetFollowersByUserId(string userId)
         {
             var followersUserUsers = await this.userUserRepository.GetAllFollowersByUserIdAsync(userId);
-            var followers = await Task.WhenAll(followersUserUsers.Select(async um => await this.userManager.FindByIdAsync(um.FollowerId!)));
+            IEnumerable<User> followers = Enumerable.Empty<User>();
+            foreach (var item in followersUserUsers)
+            {
+               followers = followers.Append(await this.userManager.FindByIdAsync(item.FollowerId!))!;
+            }
+            // var followers = await Task.WhenAll(followersUserUsers.Select(async um => await this.userManager.FindByIdAsync(um.FollowerId!)));
             return followers! ?? Enumerable.Empty<User>();
         }
     }

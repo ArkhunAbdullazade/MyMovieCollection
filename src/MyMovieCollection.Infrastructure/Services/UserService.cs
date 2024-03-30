@@ -8,14 +8,18 @@ namespace MyMovieCollection.Core.Services
     {
         private readonly UserManager<User> userManager;
         private readonly IUserMovieRepository userMovieRepository;
+        private readonly IUserUserRepository userUserRepository;
+        private readonly IWatchListRepository watchListRepository;
         private readonly SignInManager<User> signInManager;
         private readonly RoleManager<IdentityRole> roleManager;
-        public UserService(IUserMovieRepository userMovieRepository, UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager)
+        public UserService(IUserMovieRepository userMovieRepository, UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager, IWatchListRepository watchListRepository, IUserUserRepository userUserRepository)
         {
             this.userManager = userManager;
             this.userMovieRepository = userMovieRepository;
             this.signInManager = signInManager;
             this.roleManager = roleManager;
+            this.watchListRepository = watchListRepository;
+            this.userUserRepository = userUserRepository;
         }
 
         public async Task DeleteUserAsync(string id)
@@ -25,6 +29,8 @@ namespace MyMovieCollection.Core.Services
             if (userToDelete is null) throw new NullReferenceException("There is no user with this Id");
 
             await this.userMovieRepository.DeleteAllForUserAsync(id);
+            await this.watchListRepository.DeleteAllForUserAsync(id);
+            await this.userUserRepository.DeleteUserInFollowersAndFollowed(id);
             await this.userManager.DeleteAsync(userToDelete);
         }
 

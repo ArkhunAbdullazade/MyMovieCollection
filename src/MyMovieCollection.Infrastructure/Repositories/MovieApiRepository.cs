@@ -12,7 +12,7 @@ public class MovieApiRepository : IMovieRepository
     private const string apiKey = "90b3ceddfc15385f8acef82371c5db57";
     private TMDbClient tmdbClient;
 
-    public MovieApiRepository() 
+    public MovieApiRepository()
     {
         this.tmdbClient = new TMDbClient(apiKey);
     }
@@ -23,13 +23,14 @@ public class MovieApiRepository : IMovieRepository
                                             ? await tmdbClient.DiscoverMoviesAsync().OrderBy(DiscoverMovieSortBy.PopularityDesc).Query(page)
                                             : await tmdbClient.SearchMovieAsync(search, page);
 
-        MoviesResponse moviesResponse = new MoviesResponse {
+        MoviesResponse moviesResponse = new MoviesResponse
+        {
             Results = Enumerable.Empty<Movie>(),
             Page = result.Page,
             TotalPages = result.TotalPages,
             TotalResults = result.TotalResults,
         };
-        
+
         foreach (var movie in result.Results)
         {
             moviesResponse.Results = moviesResponse.Results.Append(new Movie
@@ -46,7 +47,7 @@ public class MovieApiRepository : IMovieRepository
                 BackdropPath = movie.BackdropPath is not null ? $"https://image.tmdb.org/t/p/original/{movie.BackdropPath}" : null,
             });
         }
-        
+
         return moviesResponse;
     }
 
@@ -56,19 +57,19 @@ public class MovieApiRepository : IMovieRepository
         var videos = await tmdbClient.GetMovieVideosAsync(id);
 
         var movie = new Movie()
-            {
-                Id = result.Id,
-                Title = result.Title,
-                Overview = result.Overview,
-                OriginalTitle = result.OriginalTitle,
-                OriginalLanguage = result.OriginalLanguage,
-                Score = (float)result.VoteAverage,
-                ReleaseDate = ((DateTime)result.ReleaseDate!).ToString("dd/MM/yyyy"),
-                Adult = result.Adult,
-                PosterPath = result.PosterPath is not null ? $"https://image.tmdb.org/t/p/original/{result.PosterPath}" : null,
-                BackdropPath = result.BackdropPath is not null ? $"https://image.tmdb.org/t/p/original/{result.BackdropPath}" : null,
-                Trailer = videos.Results.Any(v => v.Type == "Trailer") ? videos.Results.Where(v => v.Type == "Trailer").First().Key : null,
-            };
+        {
+            Id = result.Id,
+            Title = result.Title,
+            Overview = result.Overview,
+            OriginalTitle = result.OriginalTitle,
+            OriginalLanguage = result.OriginalLanguage,
+            Score = (float)result.VoteAverage,
+            ReleaseDate = ((DateTime)result.ReleaseDate!).ToString("dd/MM/yyyy"),
+            Adult = result.Adult,
+            PosterPath = result.PosterPath is not null ? $"https://image.tmdb.org/t/p/original/{result.PosterPath}" : null,
+            BackdropPath = result.BackdropPath is not null ? $"https://image.tmdb.org/t/p/original/{result.BackdropPath}" : null,
+            Trailer = videos.Results.Any(v => v.Type == "Trailer") ? videos.Results.Where(v => v.Type == "Trailer").First().Key : null,
+        };
 
         return movie;
     }
@@ -93,7 +94,8 @@ public class MovieApiRepository : IMovieRepository
                 break;
         }
 
-        MoviesResponse moviesResponse = new MoviesResponse {
+        MoviesResponse moviesResponse = new MoviesResponse
+        {
             Results = Enumerable.Empty<Movie>(),
             Page = result!.Page,
             TotalPages = result.TotalPages,
@@ -119,4 +121,4 @@ public class MovieApiRepository : IMovieRepository
 
         return moviesResponse.Results;
     }
-} 
+}

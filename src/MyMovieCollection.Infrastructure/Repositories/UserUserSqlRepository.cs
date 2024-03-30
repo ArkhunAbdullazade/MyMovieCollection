@@ -35,5 +35,18 @@ namespace MyMovieCollection.Infrastructure.Repositories
         {
             return await this.dbContext.UsersUsers.Where(um => um.FollowedUserId == userId).ToListAsync();
         }
+
+        public async Task<int> DeleteUserInFollowersAndFollowed(string? userId)
+        {
+            var allUusToDelete = this.dbContext.UsersUsers.Where(um => um.FollowedUserId == userId || um.FollowerId == userId);
+
+            foreach (var uu in allUusToDelete)
+            {
+                this.dbContext.UsersUsers.Remove(uu);
+            }
+
+            await this.dbContext.SaveChangesAsync();
+            return allUusToDelete.Count();
+        }
     }
 }
